@@ -1,0 +1,1180 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>MagazzinoAI</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+:root{
+  --gold:#C9A84C;--gold-l:#E8D5A3;--gold-d:#8B6914;
+  --dark:#1A1410;--dark2:#2A2018;--dark3:#3A3028;--dark4:#221C14;
+  --cream:#F5EDD8;--cream2:#EDE0C4;
+  --text:#2A1F0E;--muted:#7A6A55;
+  --brd:rgba(201,168,76,.25);--brd2:rgba(201,168,76,.55);--brd3:rgba(201,168,76,.12);
+  --green:rgba(46,125,50,.15);--green-brd:rgba(46,125,50,.4);--green-txt:#81c784;
+  --red:rgba(192,57,43,.15);--red-brd:rgba(192,57,43,.4);--red-txt:#e57373;
+  --amber:rgba(201,168,76,.12);--amber-brd:rgba(201,168,76,.4);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Mono',monospace;background:var(--dark);color:var(--cream);min-height:100vh;font-size:13px}
+
+/* ── HEADER ── */
+header{border-bottom:1px solid var(--brd);padding:.9rem 1.5rem;display:flex;align-items:center;
+  justify-content:space-between;background:rgba(26,20,16,.97);position:sticky;top:0;z-index:100;flex-wrap:wrap;gap:.5rem}
+.brand{font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:300;letter-spacing:.08em;color:var(--gold)}
+.brand em{font-style:italic;font-weight:600}
+.brand-sub{font-size:.5rem;letter-spacing:.22em;text-transform:uppercase;color:var(--muted)}
+.hnav{display:flex;gap:.35rem;flex-wrap:wrap;align-items:center}
+.nb{font-family:'DM Mono',monospace;font-size:.55rem;letter-spacing:.1em;text-transform:uppercase;
+  padding:.42rem .75rem;border-radius:3px;border:1px solid var(--brd);background:transparent;
+  color:var(--muted);cursor:pointer;transition:all .2s;white-space:nowrap}
+.nb:hover{color:var(--gold);border-color:var(--brd2)}
+.nb.on{color:var(--gold);border-color:var(--gold);background:rgba(201,168,76,.1)}
+
+/* ── LAYOUT ── */
+.wrap{max-width:1100px;margin:0 auto;padding:1.5rem 1.25rem 5rem}
+
+/* ── PANELS ── */
+.panel{background:var(--dark2);border:1px solid var(--brd);border-radius:6px;padding:1.4rem;margin-bottom:1.1rem}
+.ptitle{font-family:'Cormorant Garamond',serif;font-size:1.15rem;color:var(--gold);
+  margin-bottom:1rem;padding-bottom:.6rem;border-bottom:1px solid var(--brd);
+  display:flex;align-items:center;gap:.6rem;flex-wrap:wrap}
+
+/* ── STEPS ── */
+.steps{display:flex;border:1px solid var(--brd);border-radius:4px;overflow:hidden;margin-bottom:1.5rem}
+.step{flex:1;padding:.6rem .4rem;text-align:center;font-size:.52rem;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--muted);border-right:1px solid var(--brd);transition:all .3s}
+.step:last-child{border-right:none}
+.step.on{background:rgba(201,168,76,.12);color:var(--gold)}
+.step.done{color:var(--gold-l);background:rgba(201,168,76,.06)}
+
+/* ── FORMS ── */
+.frow{display:flex;gap:.8rem;flex-wrap:wrap;margin-bottom:.9rem}
+.fg{display:flex;flex-direction:column;gap:.28rem;flex:1;min-width:110px}
+label{font-size:.52rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}
+input,select{background:var(--dark3);border:1px solid var(--brd);border-radius:3px;
+  color:var(--cream);font-family:'DM Mono',monospace;font-size:.78rem;padding:.48rem .65rem;
+  outline:none;transition:border-color .2s;width:100%}
+input:focus,select:focus{border-color:var(--gold)}
+select option{background:var(--dark2)}
+
+/* ── BUTTONS ── */
+.btn{font-family:'DM Mono',monospace;font-size:.6rem;letter-spacing:.13em;text-transform:uppercase;
+  padding:.6rem 1.3rem;border-radius:3px;border:none;cursor:pointer;
+  transition:all .22s;display:inline-flex;align-items:center;gap:.4rem;white-space:nowrap}
+.btn-p{background:var(--gold);color:var(--dark);font-weight:500}.btn-p:hover{background:var(--gold-l)}
+.btn-p:disabled{opacity:.4;cursor:not-allowed}
+.btn-o{background:transparent;color:var(--gold);border:1px solid var(--brd2)}.btn-o:hover{background:rgba(201,168,76,.1)}
+.btn-d{background:transparent;color:var(--red-txt);border:1px solid rgba(192,57,43,.4)}.btn-d:hover{background:var(--red)}
+.btn-sm{padding:.38rem .75rem;font-size:.55rem}
+.brow{display:flex;gap:.6rem;flex-wrap:wrap;align-items:center}
+
+/* ── MODE TABS ── */
+.mode{display:flex;border:1px solid var(--brd);border-radius:4px;overflow:hidden;margin-bottom:1rem}
+.mbtn{flex:1;padding:.58rem 1rem;text-align:center;font-family:'DM Mono',monospace;
+  font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;background:transparent;
+  color:var(--muted);border:none;cursor:pointer;transition:all .2s;border-right:1px solid var(--brd)}
+.mbtn:last-child{border-right:none}
+.mbtn.on{background:rgba(201,168,76,.12);color:var(--gold)}
+
+/* ── UPLOAD ZONE ── */
+.uzone{border:2px dashed var(--brd2);border-radius:6px;padding:1.75rem;text-align:center;
+  transition:all .3s;background:rgba(201,168,76,.02);margin-bottom:.85rem}
+.uzone.drag{border-color:var(--gold);background:rgba(201,168,76,.06)}
+.uzone.has{border-color:var(--gold);background:rgba(201,168,76,.08)}
+.uico{font-size:2.2rem;margin-bottom:.5rem;opacity:.65;display:block}
+.utxt{font-family:'Cormorant Garamond',serif;font-size:1.05rem;font-weight:300;color:var(--cream2);margin-bottom:.2rem}
+.usub{font-size:.54rem;letter-spacing:.13em;color:var(--muted);text-transform:uppercase}
+.ubtns{display:flex;gap:.65rem;justify-content:center;flex-wrap:wrap;margin-top:.9rem}
+.ubtn{font-family:'DM Mono',monospace;font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;
+  padding:.52rem 1.1rem;border-radius:3px;cursor:pointer;transition:all .22s;
+  display:inline-flex;align-items:center;gap:.4rem;
+  background:transparent;color:var(--gold);border:1px solid var(--brd2)}
+.ubtn:hover{background:rgba(201,168,76,.1)}
+.ubtn.pri{background:rgba(201,168,76,.15);color:var(--gold-l);border:1px solid var(--gold)}
+.ubtn.pri:hover{background:rgba(201,168,76,.25)}
+
+/* ── PREVIEW IMMAGINI ── */
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:.5rem;margin-bottom:.85rem}
+.pitem{border:1px solid var(--brd);border-radius:4px;overflow:hidden;position:relative;aspect-ratio:3/2}
+.pitem img{width:100%;height:100%;object-fit:cover}
+.prmbtn{position:absolute;top:3px;right:3px;background:rgba(192,57,43,.9);border:none;
+  border-radius:50%;color:#fff;font-size:.65rem;width:18px;height:18px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center}
+.pbadge{position:absolute;bottom:3px;left:3px;background:rgba(26,20,16,.85);
+  border-radius:3px;font-size:.48rem;letter-spacing:.1em;text-transform:uppercase;color:var(--gold-l);padding:2px 4px}
+
+/* ── AI BOX ── */
+.aibox{display:none;align-items:center;gap:.9rem;background:rgba(201,168,76,.06);
+  border:1px solid var(--brd);border-radius:4px;padding:.8rem 1.1rem;margin-bottom:.85rem}
+.aibox.on{display:flex}
+.spin{width:16px;height:16px;border:2px solid var(--brd);border-top-color:var(--gold);
+  border-radius:50%;animation:spin .8s linear infinite;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── BANNERS ── */
+.bnr{display:none;border-radius:4px;padding:.75rem 1.1rem;margin-bottom:.85rem;
+  font-size:.65rem;letter-spacing:.06em;align-items:center;gap:.6rem}
+.bnr.on{display:flex}
+.bnr-ok{background:var(--green);border:1px solid var(--green-brd);color:var(--green-txt)}
+.bnr-warn{background:var(--amber);border:1px solid var(--amber-brd);color:var(--gold-l)}
+.bnr-err{background:var(--red);border:1px solid var(--red-brd);color:var(--red-txt)}
+
+/* ── DOC INFO (step 3) ── */
+.doc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:.65rem;margin-bottom:1rem}
+.doc-f{background:var(--dark3);border:1px solid var(--brd);border-radius:4px;padding:.75rem}
+.doc-f label{font-size:.48rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:4px}
+.doc-f input{background:transparent;border:none;border-bottom:1px solid var(--brd2);border-radius:0;
+  color:var(--cream);font-size:.85rem;font-weight:400;padding:.2rem 0;width:100%;font-family:'DM Mono',monospace}
+.doc-f input:focus{border-bottom-color:var(--gold);outline:none}
+
+/* ── RESULT TABLE ── */
+.rtable{width:100%;border-collapse:collapse;font-size:.72rem;margin-bottom:.75rem}
+.rtable th{background:var(--dark3);border:1px solid var(--brd);padding:6px 8px;
+  font-size:.5rem;font-weight:400;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);text-align:left;white-space:nowrap}
+.rtable td{border:1px solid var(--brd);padding:5px 7px;vertical-align:middle;color:var(--cream2)}
+.rtable tr:hover td{background:rgba(201,168,76,.04)}
+.rtable input,.rtable select{background:transparent;border:none;border-bottom:1px solid transparent;
+  color:var(--cream);font-family:'DM Mono',monospace;font-size:.72rem;padding:2px 3px;width:100%;min-width:40px;border-radius:0}
+.rtable input:hover,.rtable select:hover{border-bottom-color:var(--brd2)}
+.rtable input:focus,.rtable select:focus{border-bottom-color:var(--gold);outline:none;background:rgba(201,168,76,.04)}
+
+/* ── METRICS ── */
+.mgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(135px,1fr));gap:.65rem;margin-bottom:1.1rem}
+.met{background:var(--dark2);border:1px solid var(--brd);border-radius:5px;padding:.9rem 1rem}
+.ml{font-size:.5rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:.3rem}
+.mv{font-family:'Cormorant Garamond',serif;font-size:1.7rem;font-weight:600;color:var(--gold);letter-spacing:-.5px}
+.ms{font-size:.55rem;color:var(--muted);margin-top:.2rem}
+.mdelta{font-size:.6rem;font-weight:500;margin-top:.2rem}
+.dup{color:#e57373}.ddn{color:#81c784}
+
+/* ── BARS ── */
+.br-row{display:flex;align-items:center;gap:.75rem;margin-bottom:.55rem}
+.br-lbl{min-width:110px;font-size:.65rem;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.br-trk{flex:1;height:5px;background:rgba(201,168,76,.12);border-radius:3px;overflow:hidden}
+.br-fil{height:100%;border-radius:3px;transition:width .4s}
+.br-val{min-width:72px;text-align:right;font-size:.65rem;font-weight:500;color:var(--cream2)}
+
+/* ── TABLE ARCHIVIO ── */
+.atable{width:100%;border-collapse:collapse;font-size:.72rem}
+.atable th{font-size:.5rem;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);
+  padding:.5rem .7rem;text-align:left;border-bottom:1px solid var(--brd);white-space:nowrap}
+.atable td{padding:.6rem .7rem;border-bottom:1px solid rgba(201,168,76,.08);color:var(--cream2);vertical-align:middle}
+.atable tr:hover td{background:rgba(201,168,76,.04)}
+.tdc{font-family:'Cormorant Garamond',serif;font-size:.95rem;color:var(--gold);font-weight:600}
+.tdd{font-size:.62rem;color:var(--muted)}
+.tdact{display:flex;gap:.3rem;flex-wrap:wrap}
+.tbtn{font-family:'DM Mono',monospace;font-size:.52rem;letter-spacing:.06em;padding:.22rem .5rem;
+  border-radius:3px;border:1px solid var(--brd);background:transparent;color:var(--muted);cursor:pointer;transition:all .2s}
+.tbtn:hover{color:var(--gold);border-color:var(--brd2)}
+.tbtn.d{color:rgba(231,76,60,.7)}.tbtn.d:hover{color:#e74c3c;border-color:rgba(231,76,60,.4)}
+
+/* ── PRICE BADGE ── */
+.price{background:rgba(46,125,50,.18);color:#81c784;padding:2px 7px;border-radius:3px;font-weight:500;font-size:.7rem;white-space:nowrap}
+.tag{display:inline-block;font-size:.52rem;padding:2px 5px;border-radius:3px;
+  background:rgba(201,168,76,.1);color:var(--gold-l);letter-spacing:.06em;white-space:nowrap}
+
+/* ── MONTH CHART ── */
+.mchart{display:flex;align-items:flex-end;gap:4px;height:85px;margin-top:.5rem}
+.mb-w{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px}
+.mb{width:100%;background:rgba(201,168,76,.12);border-radius:3px 3px 0 0;min-height:2px;border:1px solid var(--brd);transition:background .15s}
+.mb.cur{background:rgba(201,168,76,.45);border-color:var(--gold)}
+.mb-l{font-size:.48rem;color:var(--muted);white-space:nowrap;letter-spacing:.05em}
+.mb-v{font-size:.48rem;color:var(--muted);font-weight:500}
+
+/* ── PIVOT ── */
+.pvw{overflow-x:auto;margin-top:.5rem}
+.pvt{border-collapse:collapse;font-size:.65rem;min-width:100%}
+.pvt th{background:var(--dark3);border:1px solid var(--brd);padding:5px 8px;
+  font-size:.48rem;font-weight:400;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);white-space:nowrap}
+.pvt td{border:1px solid var(--brd);padding:5px 8px;text-align:right;white-space:nowrap;color:var(--cream2)}
+.pvt .rh{text-align:left;font-weight:500;background:var(--dark3);color:var(--cream)}
+.pvt .tr td,.pvt .tc{background:rgba(201,168,76,.1);font-weight:700;color:var(--gold)}
+.h1{background:rgba(201,168,76,.06)}.h2{background:rgba(201,168,76,.12)}.h3{background:rgba(201,168,76,.2)}
+.h4{background:rgba(201,168,76,.3)}.h5{background:rgba(201,168,76,.45);color:var(--dark)!important}
+
+/* ── EMPTY ── */
+.empty{text-align:center;padding:2.5rem 1rem;color:var(--muted)}
+.empty-ico{font-size:2.5rem;margin-bottom:.75rem;opacity:.35;display:block}
+.empty-t{font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:300;margin-bottom:.3rem;color:var(--cream2)}
+.empty-s{font-size:.6rem;letter-spacing:.1em;text-transform:uppercase}
+
+/* ── SCANNER ── */
+.scan-hidden{position:absolute;left:-9999px;opacity:0;pointer-events:none;width:1px;height:1px}
+.scan-zone{border:2px dashed var(--brd2);border-radius:6px;padding:1.5rem;text-align:center;
+  cursor:pointer;transition:all .2s;background:rgba(201,168,76,.02);margin-bottom:.75rem}
+.scan-zone:hover{border-color:var(--gold);background:rgba(201,168,76,.05)}
+.scan-zone.on{border-color:var(--gold);background:rgba(201,168,76,.08);animation:glow 1.8s infinite}
+@keyframes glow{0%,100%{border-color:var(--gold)}50%{border-color:var(--gold-l)}}
+
+/* ── MODAL ── */
+.mov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:1000;align-items:center;justify-content:center;padding:1rem}
+.mov.on{display:flex}
+.mo{background:var(--dark2);border:1px solid var(--brd);border-radius:8px;
+  max-width:440px;width:100%;padding:1.5rem;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.mot{font-family:'Cormorant Garamond',serif;font-size:1.2rem;color:var(--gold);margin-bottom:.5rem}
+.mob{font-size:.7rem;color:var(--muted);margin-bottom:1.25rem;line-height:1.6;letter-spacing:.03em}
+
+/* ── MOBILE TAB BAR ── */
+.mob-bar{display:none;position:fixed;bottom:0;left:0;right:0;
+  background:rgba(26,20,16,.97);border-top:1px solid var(--brd);z-index:200;
+  padding-bottom:env(safe-area-inset-bottom)}
+.mob-tabs{display:flex}
+.mt{flex:1;display:flex;flex-direction:column;align-items:center;gap:1px;padding:7px 2px 5px;
+  font-family:'DM Mono',monospace;font-size:.44rem;font-weight:400;color:var(--muted);
+  cursor:pointer;border:none;background:none;text-transform:uppercase;letter-spacing:.25px;transition:color .12s}
+.mt .mi{font-size:19px;line-height:1.2}
+.mt.on{color:var(--gold)}
+
+/* ── RESPONSIVE ── */
+@media(max-width:700px){
+  .side-nav{display:none}
+  .mob-bar{display:block}
+  .wrap{padding:.85rem .85rem calc(68px + env(safe-area-inset-bottom))}
+  .mgrid{grid-template-columns:repeat(2,1fr)}
+  .ptitle{font-size:1rem}
+  .atable{font-size:.65rem}
+  .tw{overflow-x:auto;-webkit-overflow-scrolling:touch}
+}
+.tw{overflow-x:auto}
+</style>
+</head>
+<body>
+
+<!-- MODAL CONFERMA -->
+<div class="mov" id="modal">
+  <div class="mo">
+    <div class="mot" id="mod-t"></div>
+    <div class="mob" id="mod-b"></div>
+    <div class="brow">
+      <button class="btn btn-d" id="mod-ok">Conferma</button>
+      <button class="btn btn-o" onclick="closeModal()">Annulla</button>
+    </div>
+  </div>
+</div>
+
+<!-- MOBILE BAR -->
+<div class="mob-bar">
+  <div class="mob-tabs">
+    <button class="mt on" id="mt-dash" onclick="goV('dash')"><span class="mi">📊</span>Home</button>
+    <button class="mt" id="mt-ann" onclick="goV('ann')"><span class="mi">📅</span>Anno</button>
+    <button class="mt" id="mt-nuova" onclick="goV('nuova')"><span class="mi">📷</span>Bolla</button>
+    <button class="mt" id="mt-bolle" onclick="goV('bolle')"><span class="mi">📋</span>Archivio</button>
+    <button class="mt" id="mt-anal" onclick="goV('anal')"><span class="mi">📈</span>Analisi</button>
+  </div>
+</div>
+
+<header>
+  <div>
+    <div class="brand">Magazzino<em>AI</em></div>
+    <div class="brand-sub">Gestione acquisti · Powered by Claude</div>
+  </div>
+  <nav class="hnav side-nav">
+    <button class="nb on" id="nb-dash" onclick="goV('dash')">📊 Dashboard</button>
+    <button class="nb" id="nb-ann" onclick="goV('ann')">📅 Annuale</button>
+    <button class="nb" id="nb-pivot" onclick="goV('pivot')">🔲 Pivot</button>
+    <button class="nb" id="nb-nuova" onclick="goV('nuova')">📷 Carica Bolla</button>
+    <button class="nb" id="nb-bolle" onclick="goV('bolle')">📋 Archivio</button>
+    <button class="nb" id="nb-giac" onclick="goV('giac')">📦 Giacenze</button>
+    <button class="nb" id="nb-anal" onclick="goV('anal')">📈 Incidenze</button>
+  </nav>
+</header>
+
+<div class="wrap">
+
+<!-- ══════════ DASHBOARD ══════════ -->
+<div id="v-dash">
+  <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.65rem;margin-bottom:1.25rem">
+    <div style="font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-weight:300;color:var(--gold);letter-spacing:.04em">Dashboard</div>
+    <div style="display:flex;gap:.4rem;align-items:center;flex-wrap:wrap">
+      <button class="btn btn-o btn-sm" id="dm-m" onclick="setDM('m',this)">Mese</button>
+      <button class="btn btn-sm" id="dm-y" onclick="setDM('y',this)" style="color:var(--muted)">Anno</button>
+      <select id="d-year" onchange="renderDash()" style="width:auto;font-size:.62rem;padding:.4rem .6rem"></select>
+      <select id="d-month" onchange="renderDash()" style="width:auto;font-size:.62rem;padding:.4rem .6rem"></select>
+    </div>
+  </div>
+  <div id="d-empty" class="empty" style="display:none">
+    <span class="empty-ico">📦</span><div class="empty-t">Nessuna bolla caricata</div>
+    <div class="empty-s">Vai su Carica Bolla per iniziare</div>
+  </div>
+  <div id="d-body">
+    <div class="mgrid" id="d-met"></div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:.9rem;margin-bottom:.9rem">
+      <div class="panel" style="margin:0"><div class="ptitle">Fornitori</div><div id="d-fbars"></div></div>
+      <div class="panel" style="margin:0"><div class="ptitle">Categorie</div><div id="d-cbars"></div></div>
+    </div>
+    <div class="panel"><div class="ptitle">Bolle recenti</div><div id="d-recent"></div></div>
+  </div>
+</div>
+
+<!-- ══════════ ANNUALE ══════════ -->
+<div id="v-ann" style="display:none">
+  <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.65rem;margin-bottom:1.25rem">
+    <div style="font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-weight:300;color:var(--gold)">Vista Annuale</div>
+    <div class="brow">
+      <select id="a-year" onchange="renderAnn()" style="width:auto;font-size:.62rem;padding:.4rem .6rem"></select>
+      <button class="btn btn-o btn-sm" onclick="exportAnn()">⬇ Excel</button>
+    </div>
+  </div>
+  <div id="a-empty" class="empty" style="display:none"><span class="empty-ico">📅</span><div class="empty-t">Nessun dato</div></div>
+  <div id="a-body">
+    <div class="mgrid" id="a-met"></div>
+    <div class="panel"><div class="ptitle">Andamento mensile</div><div id="a-chart"></div></div>
+    <div class="panel">
+      <div class="ptitle">Riepilogo per mese</div>
+      <div class="tw"><table class="atable" style="min-width:480px">
+        <thead><tr><th>Mese</th><th>Bolle</th><th>Articoli</th><th>Totale</th><th>Δ prec.</th><th>% anno</th></tr></thead>
+        <tbody id="a-tbody"></tbody><tfoot id="a-tfoot"></tfoot>
+      </table></div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:.9rem">
+      <div class="panel" style="margin:0"><div class="ptitle">Fornitori — anno</div><div id="a-fbars"></div></div>
+      <div class="panel" style="margin:0"><div class="ptitle">Categorie — anno</div><div id="a-cbars"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ PIVOT ══════════ -->
+<div id="v-pivot" style="display:none">
+  <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.65rem;margin-bottom:1.25rem">
+    <div style="font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-weight:300;color:var(--gold)">Pivot Acquisti</div>
+    <div class="brow">
+      <select id="pv-year" onchange="renderPivot()" style="width:auto;font-size:.62rem;padding:.4rem .6rem"></select>
+      <select id="pv-rows" onchange="renderPivot()" style="width:auto;font-size:.62rem;padding:.4rem .6rem">
+        <option value="fornitore">Righe: Fornitore</option><option value="cat">Righe: Categoria</option>
+      </select>
+      <select id="pv-cols" onchange="renderPivot()" style="width:auto;font-size:.62rem;padding:.4rem .6rem">
+        <option value="month">Colonne: Mese</option><option value="fornitore">Colonne: Fornitore</option><option value="cat">Colonne: Categoria</option>
+      </select>
+      <button class="btn btn-o btn-sm" onclick="exportPivot()">⬇ Excel</button>
+    </div>
+  </div>
+  <div id="pv-empty" class="empty" style="display:none"><span class="empty-ico">🔲</span><div class="empty-t">Nessun dato</div></div>
+  <div id="pv-body">
+    <div class="panel"><div class="ptitle" id="pv-t">Valori €</div><div class="pvw" id="pv-tbl"></div></div>
+    <div class="panel"><div class="ptitle">Incidenza %</div><div class="pvw" id="pv-pct"></div></div>
+  </div>
+</div>
+
+<!-- ══════════ CARICA BOLLA ══════════ -->
+<div id="v-nuova" style="display:none">
+  <div style="font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-weight:300;color:var(--gold);margin-bottom:1.25rem">Carica Bolla</div>
+
+  <div class="steps">
+    <div class="step on" id="st1">① Acquisisci</div>
+    <div class="step" id="st2">② AI Analizza</div>
+    <div class="step" id="st3">③ Verifica</div>
+    <div class="step" id="st4">④ Salvata ✓</div>
+  </div>
+
+  <!-- STEP 1 -->
+  <div id="step1">
+    <div class="panel">
+      <div class="ptitle">📄 Carica documento bolla</div>
+
+      <div class="uzone" id="uzone">
+        <span class="uico" id="uico">🪪</span>
+        <div class="utxt" id="utxt">Foto o immagine della bolla</div>
+        <div class="usub" style="margin-bottom:.9rem">JPG · PNG · PDF — l'AI legge tutto: numero, fornitore, data, prodotti, prezzi</div>
+        <div class="ubtns">
+          <label class="ubtn pri" style="cursor:pointer;position:relative;overflow:hidden">
+            📁 Sfoglia File
+            <input type="file" accept="image/*,application/pdf" multiple
+              style="position:absolute;top:0;left:0;width:100%;height:100%;opacity:0;cursor:pointer"
+              onchange="doFiles(this.files);this.value=''">
+          </label>
+          <label class="ubtn" style="cursor:pointer;position:relative;overflow:hidden">
+            📷 Fotocamera
+            <input type="file" accept="image/*" capture="environment"
+              style="position:absolute;top:0;left:0;width:100%;height:100%;opacity:0;cursor:pointer"
+              onchange="doFiles(this.files);this.value=''">
+          </label>
+        </div>
+      </div>
+      <div class="pgrid" id="pgrid"></div>
+      <p style="font-size:.55rem;color:var(--muted);letter-spacing:.06em">JPEG · PNG · PDF · Puoi caricare più file · Su smartphone tocca Fotocamera per scattare direttamente</p>
+    </div>
+
+    <div id="acq-bnr" class="bnr" style="display:none"></div>
+
+    <div class="aibox" id="aibox">
+      <div class="spin"></div>
+      <div style="font-size:.68rem;color:var(--cream2)"><strong style="color:var(--gold)">Analisi AI…</strong> <span id="ai-msg">Lettura documento</span></div>
+    </div>
+
+    <div class="brow">
+      <button class="btn btn-p" id="ai-btn" disabled onclick="doAI()">🔍 Analizza con AI</button>
+      <button class="btn btn-o btn-sm" onclick="resetAll()">✕ Annulla</button>
+    </div>
+  </div>
+
+  <!-- STEP 3: VERIFICA -->
+  <div id="step3" style="display:none">
+    <div class="panel">
+      <div class="ptitle">
+        Dati estratti dall'AI
+        <span style="font-size:.55rem;letter-spacing:.1em;text-transform:uppercase;background:rgba(201,168,76,.15);color:var(--gold);padding:3px 8px;border-radius:3px;margin-left:auto">✦ Claude AI</span>
+      </div>
+      <div class="doc-grid" id="doc-info"></div>
+      <div id="ai-note"></div>
+      <div id="ai-anom"></div>
+    </div>
+
+    <div class="panel">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:.65rem">
+        <div class="ptitle" style="margin:0;border:none;padding:0">Prodotti identificati</div>
+        <div style="display:flex;align-items:center;gap:.75rem">
+          <span id="v-tot" style="font-family:'Cormorant Garamond',serif;font-size:1.1rem;color:var(--gold)"></span>
+          <button class="btn btn-o btn-sm" onclick="addRigaVuota()">+ Aggiungi riga</button>
+        </div>
+      </div>
+      <div class="tw">
+        <table class="rtable" style="min-width:700px">
+          <thead><tr><th style="min-width:190px">Articolo</th><th style="min-width:135px">Categoria</th><th style="width:65px">Qtà</th><th style="width:50px">UM</th><th style="width:82px">Prezzo €/UM</th><th style="width:78px">Valore €</th><th style="width:90px">Note AI</th><th style="width:38px"></th></tr></thead>
+          <tbody id="v-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="brow">
+      <button class="btn btn-p" onclick="confirmSave()">✓ Conferma e salva in magazzino</button>
+      <button class="btn btn-o btn-sm" onclick="backTo1()">← Riprova</button>
+      <button class="btn btn-d btn-sm" onclick="resetAll()">Annulla</button>
+    </div>
+  </div>
+
+  <!-- STEP 4: SALVATA -->
+  <div id="step4" style="display:none">
+    <div class="panel">
+      <div class="bnr bnr-ok on" id="ok-msg" style="margin-bottom:1rem;font-size:.75rem"></div>
+      <div id="ok-sum"></div>
+    </div>
+    <div class="brow">
+      <button class="btn btn-p" onclick="goV('dash')">📊 Dashboard</button>
+      <button class="btn btn-o" onclick="resetAll()">📷 Carica un'altra bolla</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ ARCHIVIO BOLLE ══════════ -->
+<div id="v-bolle" style="display:none">
+  <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.65rem;margin-bottom:1.25rem">
+    <div style="font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-weight:300;color:var(--gold)">Archivio Bolle</div>
+    <div class="brow">
+      <select id="b-year" onchange="renderBolle()" style="width:auto;font-size:.62rem;padding:.4rem .6rem"></select>
+      <select id="b-month" onchange="renderBolle()" style="width:auto;font-size:.62rem;padding:.4rem .6rem"><option value="">Tutti i mesi</option></select>
+      <select id="b-for" onchange="renderBolle()" style="width:auto;font-size:.62rem;padding:.4rem .6rem"><option value="">Tutti i fornitori</option></select>
+      <button class="btn btn-o btn-sm" onclick="exportBolle()">⬇ Excel</button>
+    </div>
+  </div>
+  <div id="b-empty" class="empty" style="display:none"><span class="empty-ico">📋</span><div class="empty-t">Nessuna bolla</div><div class="empty-s">Vai su Carica Bolla per iniziare</div></div>
+  <div class="panel" id="b-panel" style="display:none">
+    <div style="display:flex;justify-content:space-between;margin-bottom:.85rem;flex-wrap:wrap;gap:.5rem">
+      <div id="b-cnt" style="font-size:.62rem;color:var(--muted)"></div>
+      <div id="b-tot"></div>
+    </div>
+    <div class="tw"><table class="atable" style="min-width:650px">
+      <thead><tr><th>N. Documento</th><th>Data</th><th>Fornitore</th><th>Articoli</th><th>Totale</th><th>Fonte</th><th></th></tr></thead>
+      <tbody id="b-tbody"></tbody>
+    </table></div>
+  </div>
+</div>
+
+<!-- ══════════ GIACENZE ══════════ -->
+<div id="v-giac" style="display:none">
+  <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.65rem;margin-bottom:1.25rem">
+    <div style="font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-weight:300;color:var(--gold)">Giacenze Valorizzate</div>
+    <div class="brow">
+      <select id="g-year" onchange="renderGiac()" style="width:auto;font-size:.62rem;padding:.4rem .6rem"></select>
+      <select id="g-month" onchange="renderGiac()" style="width:auto;font-size:.62rem;padding:.4rem .6rem"><option value="">Tutti i mesi</option></select>
+      <select id="g-cat" onchange="renderGiac()" style="width:auto;font-size:.62rem;padding:.4rem .6rem"><option value="">Tutte le categorie</option></select>
+      <select id="g-ord" onchange="renderGiac()" style="width:auto;font-size:.62rem;padding:.4rem .6rem">
+        <option value="val">Per valore ↓</option><option value="mat">Alfabetico</option><option value="cat">Per categoria</option>
+      </select>
+      <button class="btn btn-o btn-sm" onclick="exportGiac()">⬇ Excel</button>
+    </div>
+  </div>
+  <div id="g-empty" class="empty" style="display:none"><span class="empty-ico">📦</span><div class="empty-t">Nessun articolo</div></div>
+  <div class="panel" id="g-panel" style="display:none">
+    <div id="g-sum" style="font-size:.62rem;color:var(--muted);margin-bottom:.85rem;letter-spacing:.05em"></div>
+    <div class="tw"><table class="atable" style="min-width:620px">
+      <thead><tr><th>Articolo</th><th>Categoria</th><th>Qtà tot.</th><th>UM</th><th>Prezzo medio</th><th>Valore</th><th>%</th><th>Fornitore</th></tr></thead>
+      <tbody id="g-tbody"></tbody><tfoot id="g-tfoot"></tfoot>
+    </table></div>
+  </div>
+</div>
+
+<!-- ══════════ INCIDENZE ══════════ -->
+<div id="v-anal" style="display:none">
+  <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.65rem;margin-bottom:1.25rem">
+    <div style="font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-weight:300;color:var(--gold)">Analisi Incidenze</div>
+    <div class="brow">
+      <select id="an-year" onchange="renderAnal()" style="width:auto;font-size:.62rem;padding:.4rem .6rem"></select>
+      <select id="an-month" onchange="renderAnal()" style="width:auto;font-size:.62rem;padding:.4rem .6rem"><option value="">Tutti i mesi</option></select>
+      <button class="btn btn-o btn-sm" onclick="exportAnal()">⬇ Excel completo</button>
+    </div>
+  </div>
+  <div id="an-empty" class="empty" style="display:none"><span class="empty-ico">📈</span><div class="empty-t">Nessun dato</div></div>
+  <div id="an-body">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:.9rem;margin-bottom:.9rem">
+      <div class="panel" style="margin:0"><div class="ptitle">Per fornitore</div><div id="an-for"></div></div>
+      <div class="panel" style="margin:0"><div class="ptitle">Per categoria</div><div id="an-cat"></div></div>
+    </div>
+    <div class="panel">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:.5rem">
+        <div class="ptitle" style="margin:0;border:none;padding:0">Per prodotto</div>
+        <select id="an-fcat" onchange="renderProd()" style="width:auto;font-size:.62rem;padding:.4rem .6rem"><option value="">Tutte le categorie</option></select>
+      </div>
+      <div class="tw"><table class="atable" style="min-width:500px">
+        <thead><tr><th>Prodotto</th><th>Categoria</th><th>Fornitore</th><th>Valore</th><th>%</th><th style="min-width:80px">Barra</th></tr></thead>
+        <tbody id="an-prod"></tbody>
+      </table></div>
+    </div>
+  </div>
+</div>
+
+</div><!-- wrap -->
+
+<script>
+'use strict';
+
+// ═══════════════════════════════════
+// COLORI
+// ═══════════════════════════════════
+const GOLDS=['rgba(201,168,76,.7)','rgba(201,168,76,.55)','rgba(201,168,76,.42)','rgba(201,168,76,.3)','rgba(201,168,76,.2)'];
+const FCOLS=['#C9A84C','#E8D5A3','#81c784','#64b5f6','#e57373','#ba68c8','#4db6ac','#ffb74d','#a1887f','#90a4ae'];
+const CCOLS=['#C9A84C','#81c784','#64b5f6','#e57373','#ba68c8','#4db6ac','#ffb74d','#a1887f','#f06292','#aed581'];
+const MESI=['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
+const MSH=['Gen','Feb','Mar','Apr','Mag','Giu','Lug','Ago','Set','Ott','Nov','Dic'];
+const CATS=['Pesce','Carni Bovine','Carni Suine','Salumi','Formaggi','Latticini','Uova','Verdura fresca','Frutta fresca','Frutta secca','Pasta secca','Pasta fresca','Riso','Drogheria','Conserve','Surgelati','Bevande','Caffè','Dolciario','Erbe aromatiche','Non alimentare','Altro'];
+
+const _fc={},_cc={};
+function fCol(f){if(!_fc[f]){const k=Object.keys(_fc).length;_fc[f]=FCOLS[k%FCOLS.length];}return _fc[f];}
+function cCol(c){if(!_cc[c]){const k=Object.keys(_cc).length;_cc[c]=CCOLS[k%CCOLS.length];}return _cc[c];}
+
+// ═══════════════════════════════════
+// STATO
+// ═══════════════════════════════════
+let BOLLE=[];
+let dashMode='m';
+let acqMode='foto';
+let imgs=[]; // array {file,url,base64,mime}
+let aiRighe=[];
+let aiDoc={};
+let scanBuf='',scanTimer=null,scanOn=false;
+
+// ═══════════════════════════════════
+// UTILS
+// ═══════════════════════════════════
+const fmt=n=>parseFloat(n||0).toLocaleString('it-IT',{minimumFractionDigits:2,maximumFractionDigits:2});
+const fmtN=n=>parseFloat(n||0).toLocaleString('it-IT',{minimumFractionDigits:0,maximumFractionDigits:3});
+const fmtP=n=>parseFloat(n||0).toFixed(1)+'%';
+const h2r=(h,a=.12)=>{const rr=parseInt(h.slice(1,3),16),g=parseInt(h.slice(3,5),16),b=parseInt(h.slice(5,7),16);return`rgba(${rr},${g},${b},${a})`;};
+const sumV=(arr,k)=>arr.reduce((s,i)=>s+(parseFloat(i[k])||0),0);
+const grp=(arr,k)=>arr.reduce((a,i)=>{(a[i[k]]=a[i[k]]||[]).push(i);return a;},{});
+const allR=()=>BOLLE.flatMap(b=>b.righe.map(r=>({...r,fornitore:b.fornitore,year:b.year,month:b.month,bolla:b.num,data:b.data})));
+const allF=()=>[...new Set(BOLLE.map(b=>b.fornitore))].sort();
+const allC=()=>[...new Set(allR().map(r=>r.cat))].sort();
+const getYY=()=>{const yy=[...new Set(BOLLE.map(b=>b.year))].sort();return yy.length?yy:[new Date().getFullYear()];};
+function fR(year,month){let R=allR();if(year)R=R.filter(r=>r.year==year);if(month!==''&&month!=null)R=R.filter(r=>r.month==month);return R;}
+function fB(year,month,for_){let B=BOLLE;if(year)B=B.filter(b=>b.year==year);if(month!==''&&month!=null)B=B.filter(b=>b.month==month);if(for_)B=B.filter(b=>b.fornitore===for_);return B;}
+
+// ═══════════════════════════════════
+// SELECTORS
+// ═══════════════════════════════════
+function fillY(id,cb,addAll=false){
+  const s=document.getElementById(id);if(!s)return;
+  const p=s.value;while(s.options.length)s.remove(0);
+  if(addAll){const o=document.createElement('option');o.value='';o.textContent='Tutti gli anni';s.appendChild(o);}
+  getYY().forEach(y=>{const o=document.createElement('option');o.value=y;o.textContent=y;s.appendChild(o);});
+  if(p&&[...s.options].some(o=>o.value==p))s.value=p;
+  else s.value=s.options[s.options.length-1]?.value||'';
+  if(cb)s.onchange=cb;
+}
+function fillM(id,cb,year,addAll=true){
+  const s=document.getElementById(id);if(!s)return;
+  const p=s.value;while(s.options.length)s.remove(0);
+  if(addAll){const o=document.createElement('option');o.value='';o.textContent='Tutti i mesi';s.appendChild(o);}
+  const mm=[...new Set(BOLLE.filter(b=>!year||b.year==year).map(b=>b.month))].sort((a,b)=>a-b);
+  mm.forEach(m=>{const o=document.createElement('option');o.value=m;o.textContent=MESI[m-1];s.appendChild(o);});
+  if(p&&[...s.options].some(o=>o.value==p))s.value=p;
+  if(cb)s.onchange=cb;
+}
+function fillF(id){
+  const s=document.getElementById(id);if(!s)return;
+  const p=s.value;while(s.options.length>1)s.remove(1);
+  allF().forEach(f=>{const o=document.createElement('option');o.value=f;o.textContent=f;s.appendChild(o);});
+  if(p&&[...s.options].some(o=>o.value===p))s.value=p;
+}
+function fillC(id){
+  const s=document.getElementById(id);if(!s)return;
+  const p=s.value;while(s.options.length>1)s.remove(1);
+  allC().forEach(c=>{const o=document.createElement('option');o.value=c;o.textContent=c;s.appendChild(o);});
+  if(p&&[...s.options].some(o=>o.value===p))s.value=p;
+}
+
+// ═══════════════════════════════════
+// NAV
+// ═══════════════════════════════════
+const VIEWS=['dash','ann','pivot','nuova','bolle','giac','anal'];
+const RENDERS={
+  dash:()=>{fillY('d-year',renderDash);fillM('d-month',renderDash,document.getElementById('d-year')?.value);renderDash();},
+  ann:()=>{fillY('a-year',renderAnn);renderAnn();},
+  pivot:()=>{fillY('pv-year',renderPivot);renderPivot();},
+  nuova:initNuova,
+  bolle:()=>{fillY('b-year',renderBolle,true);fillM('b-month',renderBolle,'',true);fillF('b-for');renderBolle();},
+  giac:()=>{fillY('g-year',renderGiac,true);fillM('g-month',renderGiac,'',true);fillC('g-cat');renderGiac();},
+  anal:()=>{fillY('an-year',renderAnal,true);fillM('an-month',renderAnal,'',true);fillC('an-fcat');renderAnal();},
+};
+function goV(id){
+  VIEWS.forEach(v=>{
+    document.getElementById('v-'+v).style.display=v===id?'':'none';
+    document.getElementById('nb-'+v)?.classList.toggle('on',v===id);
+    document.getElementById('mt-'+v)?.classList.toggle('on',v===id);
+  });
+  if(RENDERS[id])RENDERS[id]();
+}
+function updCount(){
+  // no sidebar count needed, header brand shows it implicitly
+}
+
+// ═══════════════════════════════════
+// DASHBOARD
+// ═══════════════════════════════════
+function setDM(m){
+  dashMode=m;
+  const mb=document.getElementById('dm-m'),yb=document.getElementById('dm-y');
+  mb.className='btn btn-sm '+(m==='m'?'btn-o':'');yb.className='btn btn-sm '+(m==='y'?'btn-o':'');
+  mb.style.color=m==='m'?'':'var(--muted)';yb.style.color=m==='y'?'':'var(--muted)';
+  document.getElementById('d-month').style.display=m==='m'?'':'none';
+  renderDash();
+}
+function renderDash(){
+  const year=document.getElementById('d-year')?.value||'';
+  const month=dashMode==='m'?(document.getElementById('d-month')?.value||''):'';
+  const R=fR(year,month),B=fB(year,month,''),T=sumV(R,'val');
+  const empty=!BOLLE.length;
+  document.getElementById('d-empty').style.display=empty?'':'none';
+  document.getElementById('d-body').style.display=empty?'none':'';
+  if(empty)return;
+  let prevT=0;
+  if(dashMode==='m'&&month){const pm=+month-1,py=pm<1?+year-1:+year,pmm=pm<1?12:pm;prevT=sumV(fR(py,pmm),'val');}
+  const dH=prevT>0?`<div class="mdelta ${T>=prevT?'dup':'ddn'}">${T>=prevT?'▲':'▼'} ${fmtP(Math.abs((T-prevT)/prevT*100))} vs periodo prec.</div>`:'';
+  document.getElementById('d-met').innerHTML=`
+    <div class="met"><div class="ml">Totale acquisti</div><div class="mv">€ ${fmt(T)}</div>${dH}<div class="ms">${B.length} bolle DDT</div></div>
+    <div class="met"><div class="ml">Fornitori attivi</div><div class="mv">${new Set(B.map(b=>b.fornitore)).size}</div><div class="ms">nel periodo</div></div>
+    <div class="met"><div class="ml">Articoli distinti</div><div class="mv">${new Set(R.map(r=>r.mat)).size}</div><div class="ms">nel periodo</div></div>
+    <div class="met"><div class="ml">Media per bolla</div><div class="mv">€ ${fmt(B.length?T/B.length:0)}</div><div class="ms">valore medio DDT</div></div>`;
+  const fT=Object.entries(grp(R,'fornitore')).map(([f,rr])=>({f,v:sumV(rr,'val')})).sort((a,b)=>b.v-a.v);
+  const mxF=fT[0]?.v||1;
+  document.getElementById('d-fbars').innerHTML=fT.map(({f,v},i)=>{const c=fCol(f);return`<div class="br-row"><span class="br-lbl" title="${f}">${f.split(' ')[0]}</span><div class="br-trk"><div class="br-fil" style="width:${Math.round(v/mxF*100)}%;background:${c}"></div></div><span class="br-val">€ ${fmt(v)}</span></div>`;}).join('')||'<div style="color:var(--muted);font-size:.65rem">—</div>';
+  const cT=Object.entries(grp(R,'cat')).map(([c,rr])=>({c,v:sumV(rr,'val')})).sort((a,b)=>b.v-a.v).slice(0,10);
+  const mxC=cT[0]?.v||1;
+  document.getElementById('d-cbars').innerHTML=cT.map(({c,v})=>{const col=cCol(c);return`<div class="br-row"><span class="br-lbl">${c}</span><div class="br-trk"><div class="br-fil" style="width:${Math.round(v/mxC*100)}%;background:${col}"></div></div><span class="br-val">€ ${fmt(v)}</span></div>`;}).join('');
+  document.getElementById('d-recent').innerHTML=B.slice().sort((a,b)=>b.data.localeCompare(a.data)).slice(0,8).map(b=>{
+    const c=fCol(b.fornitore);
+    return`<div style="display:flex;justify-content:space-between;align-items:center;padding:.65rem 0;border-bottom:1px solid var(--brd)">
+      <span><strong style="color:var(--cream)">${b.num}</strong> <span style="color:var(--muted);font-size:.6rem">${b.data}</span><br>
+      <span style="color:${c};font-size:.68rem">${b.fornitore}</span> <span class="tag">${b.righe.length} art.</span></span>
+      <span style="display:flex;align-items:center;gap:.5rem">
+        <span style="font-size:.55rem;letter-spacing:.08em;text-transform:uppercase;background:rgba(201,168,76,.12);color:var(--gold);padding:2px 6px;border-radius:3px">${b.fonte}</span>
+        <span class="price">€ ${fmt(b.totale)}</span>
+      </span></div>`;
+  }).join('')||'<div style="color:var(--muted);font-size:.65rem;padding:.5rem 0">Nessuna bolla nel periodo.</div>';
+}
+
+// ═══════════════════════════════════
+// ANNUALE
+// ═══════════════════════════════════
+function renderAnn(){
+  const year=document.getElementById('a-year')?.value||'';
+  const B=fB(year,'',''),R=fR(year,'');
+  const empty=!B.length;
+  document.getElementById('a-empty').style.display=empty?'':'none';
+  document.getElementById('a-body').style.display=empty?'none':'';
+  if(empty)return;
+  const T=sumV(R,'val'),nA=new Set(R.map(r=>r.mat)).size;
+  const byM=[];for(let m=1;m<=12;m++){const bm=B.filter(b=>b.month===m),rm=R.filter(r=>r.month===m);byM.push({m,n:bm.length,art:new Set(rm.map(r=>r.mat)).size,tot:sumV(rm,'val')});}
+  const act=byM.filter(m=>m.n>0);
+  document.getElementById('a-met').innerHTML=`
+    <div class="met"><div class="ml">Totale anno ${year}</div><div class="mv">€ ${fmt(T)}</div><div class="ms">${B.length} bolle DDT</div></div>
+    <div class="met"><div class="ml">Mesi attivi</div><div class="mv">${act.length}<span style="font-size:1rem;color:var(--muted)">/12</span></div></div>
+    <div class="met"><div class="ml">Media mensile</div><div class="mv">€ ${fmt(act.length?T/act.length:0)}</div></div>
+    <div class="met"><div class="ml">Articoli distinti</div><div class="mv">${nA}</div></div>`;
+  const mxM=Math.max(...byM.map(m=>m.tot),1);
+  document.getElementById('a-chart').innerHTML=`<div class="mchart">${byM.map(m=>{const h=m.tot>0?Math.max(Math.round(m.tot/mxM*100),5):0;return`<div class="mb-w"><div class="mb-v">${m.tot>0?'€'+Math.round(m.tot/1000)+'k':''}</div><div class="mb${m.n?' cur':''}" style="height:${h}%" title="${MESI[m.m-1]}: € ${fmt(m.tot)}"></div><div class="mb-l">${MSH[m.m-1]}</div></div>`;}).join('')}</div>`;
+  let prev=0;
+  document.getElementById('a-tbody').innerHTML=byM.map(m=>{
+    const d=prev>0&&m.tot>0?((m.tot-prev)/prev*100):null;
+    const dh=d!==null?`<span class="mdelta ${d>=0?'dup':'ddn'}">${d>=0?'▲':'▼'} ${Math.abs(d).toFixed(1)}%</span>`:'—';
+    const row=`<tr style="${!m.n?'opacity:.4':''}"><td style="font-family:'Cormorant Garamond',serif;font-size:.95rem;color:${m.n?'var(--gold)':'var(--muted)'}">${MESI[m.m-1]}</td><td>${m.n||'—'}</td><td>${m.art||'—'}</td><td>${m.tot>0?`<span class="price">€ ${fmt(m.tot)}</span>`:'—'}</td><td>${dh}</td><td>${m.tot>0?`<span class="tag">${fmtP(T?m.tot/T*100:0)}</span>`:'—'}</td></tr>`;
+    if(m.tot>0)prev=m.tot;return row;
+  }).join('');
+  document.getElementById('a-tfoot').innerHTML=`<tr style="color:var(--gold)"><td style="font-family:'Cormorant Garamond',serif">TOTALE</td><td>${B.length}</td><td>${nA}</td><td><span class="price">€ ${fmt(T)}</span></td><td>—</td><td>100%</td></tr>`;
+  const fBars=Object.entries(grp(R,'fornitore')).map(([f,rr])=>({f,v:sumV(rr,'val')})).sort((a,b)=>b.v-a.v);
+  const mxF=fBars[0]?.v||1;
+  document.getElementById('a-fbars').innerHTML=fBars.map(({f,v})=>{const c=fCol(f);return`<div class="br-row"><span class="br-lbl" title="${f}">${f.split(' ')[0]}</span><div class="br-trk"><div class="br-fil" style="width:${Math.round(v/mxF*100)}%;background:${c}"></div></div><span class="br-val">€ ${fmt(v)}</span></div>`;}).join('');
+  const cBars=Object.entries(grp(R,'cat')).map(([c,rr])=>({c,v:sumV(rr,'val')})).sort((a,b)=>b.v-a.v).slice(0,10);
+  const mxC=cBars[0]?.v||1;
+  document.getElementById('a-cbars').innerHTML=cBars.map(({c,v})=>{const col=cCol(c);return`<div class="br-row"><span class="br-lbl">${c}</span><div class="br-trk"><div class="br-fil" style="width:${Math.round(v/mxC*100)}%;background:${col}"></div></div><span class="br-val">€ ${fmt(v)}</span></div>`;}).join('');
+}
+
+// ═══════════════════════════════════
+// PIVOT
+// ═══════════════════════════════════
+function renderPivot(){
+  const year=document.getElementById('pv-year')?.value||'';
+  const rk=document.getElementById('pv-rows')?.value||'fornitore';
+  const ck=document.getElementById('pv-cols')?.value||'month';
+  const R=fR(year,'');
+  const empty=!R.length;
+  document.getElementById('pv-empty').style.display=empty?'':'none';
+  document.getElementById('pv-body').style.display=empty?'none':'';
+  if(empty)return;
+  const rV=rk==='fornitore'?allF():allC();
+  let cV;
+  if(ck==='month')cV=[...new Set(R.map(r=>r.month))].sort((a,b)=>a-b).map(m=>({k:m,l:MSH[m-1]}));
+  else if(ck==='fornitore')cV=allF().map(f=>({k:f,l:f.split(' ')[0]}));
+  else cV=allC().map(c=>({k:c,l:c}));
+  const mx={},cT={},tot={v:0};
+  rV.forEach(rv=>{mx[rv]={_t:0};cV.forEach(cv=>{mx[rv][cv.k]=0;});});
+  cV.forEach(cv=>{cT[cv.k]=0;});
+  R.forEach(r=>{const rv=rk==='fornitore'?r.fornitore:r.cat;const ck2=ck==='month'?r.month:ck==='fornitore'?r.fornitore:r.cat;if(mx[rv]!==undefined&&cT[ck2]!==undefined){mx[rv][ck2]+=r.val;mx[rv]._t+=r.val;cT[ck2]+=r.val;tot.v+=r.val;}});
+  const allV=rV.flatMap(rv=>cV.map(cv=>mx[rv][cv.k]||0)).filter(v=>v>0);
+  const mxV=Math.max(...allV,1);
+  function hc(v){if(!v)return'';const q=v/mxV;return q<.2?'h1':q<.4?'h2':q<.6?'h3':q<.8?'h4':'h5';}
+  function build(pct){
+    let h=`<table class="pvt"><thead><tr><th>${rk==='fornitore'?'Fornitore':'Categoria'}</th>`;
+    cV.forEach(cv=>h+=`<th>${cv.l}</th>`);h+=`<th class="tc">TOTALE</th></tr></thead><tbody>`;
+    rV.forEach(rv=>{h+=`<tr><td class="rh">${rv.length>26?rv.slice(0,26)+'…':rv}</td>`;cV.forEach(cv=>{const v=mx[rv][cv.k]||0;const d=pct?(tot.v?fmtP(v/tot.v*100):'—'):(v?'€ '+fmt(v):'—');h+=`<td class="${!pct&&v?hc(v):''}">${d}</td>`;});h+=`<td class="tc">${pct?(tot.v?fmtP(mx[rv]._t/tot.v*100):'—'):'€ '+fmt(mx[rv]._t)}</td></tr>`;});
+    h+=`<tr class="tr"><td class="rh">TOTALE</td>`;cV.forEach(cv=>{const v=cT[cv.k]||0;h+=`<td>${pct?(tot.v?fmtP(v/tot.v*100):'—'):'€ '+fmt(v)}</td>`;});h+=`<td>${pct?'100%':'€ '+fmt(tot.v)}</td></tr></tbody></table>`;return h;
+  }
+  document.getElementById('pv-t').textContent=`Valori € — ${year||'tutti'} — heatmap`;
+  document.getElementById('pv-tbl').innerHTML=build(false);
+  document.getElementById('pv-pct').innerHTML=build(true);
+}
+
+// ═══════════════════════════════════
+// CARICA BOLLA — FLUSSO AI
+// ═══════════════════════════════════
+function initNuova(){stepUI(1);}
+
+// ── UPLOAD IMMAGINI ──
+const uz=document.getElementById('uzone');
+uz.addEventListener('dragover',e=>{e.preventDefault();uz.classList.add('drag');});
+uz.addEventListener('dragleave',()=>uz.classList.remove('drag'));
+uz.addEventListener('drop',e=>{e.preventDefault();uz.classList.remove('drag');doFiles(e.dataTransfer.files);});
+
+function doFiles(files){
+  Array.from(files).forEach(f=>{
+    if(imgs.length>=4)return;
+    const r=new FileReader();
+    r.onload=ev=>{
+      imgs.push({file:f,url:ev.target.result,base64:ev.target.result.split(',')[1],mime:f.type||'image/jpeg'});
+      renderPreviews();
+      checkReady();
+    };
+    r.readAsDataURL(f);
+  });
+}
+function renderPreviews(){
+  const pg=document.getElementById('pgrid');
+  pg.innerHTML='';
+  imgs.forEach((img,i)=>{
+    const d=document.createElement('div');d.className='pitem';
+    if(img.mime.startsWith('image/')){
+      d.innerHTML=`<img src="${img.url}"><button class="prmbtn" onclick="rmImg(${i})">×</button><div class="pbadge">Doc ${i+1}</div>`;
+    } else {
+      d.innerHTML=`<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:.6rem;color:var(--gold);padding:.3rem;text-align:center">📄 PDF<br>${img.file.name.slice(0,12)}</div><button class="prmbtn" onclick="rmImg(${i})">×</button>`;
+    }
+    pg.appendChild(d);
+  });
+  if(imgs.length>0){
+    uz.classList.add('has');
+    document.getElementById('uico').textContent='✅';
+    document.getElementById('utxt').textContent=`${imgs.length} file caricato${imgs.length>1?'i':''} — pronto per l'analisi AI`;
+  } else {
+    uz.classList.remove('has');
+    document.getElementById('uico').textContent='🪪';
+    document.getElementById('utxt').textContent='Foto o immagine della bolla';
+  }
+}
+function rmImg(i){imgs.splice(i,1);renderPreviews();checkReady();}
+
+function checkReady(){
+  const ready=imgs.length>0;
+  document.getElementById('ai-btn').disabled=!ready;
+  const bnr=document.getElementById('acq-bnr');
+  if(ready){
+    bnr.style.display='flex';bnr.className='bnr bnr-ok on';
+    bnr.textContent=`✅ ${imgs.length} file pronto${imgs.length>1?'i':''} — premi Analizza con AI`;
+  } else {
+    bnr.style.display='none';
+  }
+}
+
+// ── CORE AI ──
+async function doAI(){
+  const ab=document.getElementById('aibox');
+  document.getElementById('ai-btn').disabled=true;
+  ab.classList.add('on');
+  document.getElementById('acq-bnr').style.display='none';
+
+  // Costruisci content array — identico all'app hotel
+  const ca=[];
+  imgs.forEach(img=>{
+    if(img.mime==='application/pdf'){
+      ca.push({type:'document',source:{type:'base64',media_type:'application/pdf',data:img.base64}});
+    } else {
+      ca.push({type:'image',source:{type:'base64',media_type:img.mime,data:img.base64}});
+    }
+  });
+
+  const prompt=`Sei un esperto OCR e gestione magazzino per la ristorazione professionale italiana.
+Analizza il documento (bolla/DDT di acquisto).
+Estrai TUTTI i dati presenti nel documento:
+- numero documento (DDT, bolla, fattura, etc.)
+- data (formato YYYY-MM-DD)
+- ragione sociale fornitore completa
+- per ogni riga prodotto: nome articolo pulito, quantità numerica, unità di misura, prezzo unitario, valore totale riga
+- assegna categoria tra: ${CATS.join(', ')}
+- segnala anomalie di prezzo rispetto ai prezzi di mercato italiani per la ristorazione professionale
+Campi non leggibili = "".
+Rispondi SOLO con JSON valido, zero backtick, zero testo aggiuntivo:
+{"num_documento":"","data":"YYYY-MM-DD","fornitore":"","righe":[{"mat":"","cat":"","qty":0,"unit":"","price":0,"val":0,"note":""}],"totale":0,"anomalie":[],"note_generali":""}`;
+
+  ca.push({type:'text',text:prompt});
+  document.getElementById('ai-msg').textContent='Lettura documento…';
+
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'x-api-key':'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',
+        'anthropic-version':'2023-06-01',
+        'anthropic-dangerous-direct-browser-calls':'true'
+      },
+      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:4000,messages:[{role:'user',content:ca}]})
+    });
+    if(!res.ok){const e=await res.json();throw new Error(e.error?.message||'HTTP '+res.status);}
+    const data=await res.json();
+    const txt=data.content.map(b=>b.text||'').join('').replace(/```json\s*|```\s*/g,'').trim();
+    let parsed;
+    try{parsed=JSON.parse(txt);}
+    catch(_){const m=txt.match(/\{[\s\S]*\}/);if(m)parsed=JSON.parse(m[0]);else throw new Error('JSON non valido nella risposta AI');}
+    aiDoc=parsed;
+    aiRighe=parsed.righe.map((r,i)=>({...r,_i:i}));
+    ab.classList.remove('on');
+    stepUI(3);
+    showStep3(parsed);
+  }catch(err){
+    ab.classList.remove('on');
+    document.getElementById('ai-btn').disabled=false;
+    checkReady();
+    const bnr=document.getElementById('acq-bnr');
+    bnr.style.display='flex';bnr.className='bnr bnr-err on';
+    bnr.textContent=`⚠️ Errore AI: ${err.message}. Verifica la connessione e riprova.`;
+  }
+}
+
+function showStep3(p){
+  document.getElementById('doc-info').innerHTML=`
+    <div class="doc-f"><label>N. Documento</label><input id="v-num" value="${p.num_documento||''}" placeholder="es. DDT-001"></div>
+    <div class="doc-f"><label>Data documento</label><input id="v-data" type="date" value="${p.data||new Date().toISOString().slice(0,10)}"></div>
+    <div class="doc-f"><label>Fornitore</label><input id="v-for" value="${p.fornitore||''}" placeholder="Ragione sociale"></div>
+    <div class="doc-f"><label>Totale documento</label><div style="font-family:'Cormorant Garamond',serif;font-size:1.4rem;color:var(--gold);font-weight:600;padding-top:4px">€ ${fmt(p.totale)}</div></div>`;
+  const noteEl=document.getElementById('ai-note');
+  noteEl.innerHTML=p.note_generali?`<div class="bnr bnr-warn on" style="margin-bottom:.75rem">💬 ${p.note_generali}</div>`:'';
+  const anom=(p.anomalie||[]).filter(a=>a);
+  document.getElementById('ai-anom').innerHTML=anom.length
+    ?anom.map(a=>`<div class="bnr bnr-warn on" style="margin-bottom:.4rem">⚠️ ${a}</div>`).join('')
+    :`<div class="bnr bnr-ok on" style="margin-bottom:.75rem">✅ Nessuna anomalia di prezzo rilevata</div>`;
+  renderVTable();
+}
+
+function catOpts(sel){return CATS.map(c=>`<option ${c===sel?'selected':''}>${c}</option>`).join('');}
+
+function renderVTable(){
+  const tot=sumV(aiRighe,'val');
+  document.getElementById('v-tot').textContent=`€ ${fmt(tot)} · ${aiRighe.length} articoli`;
+  document.getElementById('v-tbody').innerHTML=aiRighe.map((r,i)=>`<tr>
+    <td><input value="${r.mat}" onchange="upd(${i},'mat',this.value)" style="min-width:170px"></td>
+    <td><select onchange="upd(${i},'cat',this.value)">${catOpts(r.cat)}</select></td>
+    <td><input type="number" value="${r.qty}" min="0" step="0.001" onchange="upd(${i},'qty',+this.value)" style="width:60px"></td>
+    <td><input value="${r.unit}" onchange="upd(${i},'unit',this.value)" style="width:44px"></td>
+    <td><input type="number" value="${r.price}" min="0" step="0.001" onchange="upd(${i},'price',+this.value)" style="width:75px"></td>
+    <td style="color:var(--gold);font-weight:500;white-space:nowrap">€ ${fmt(r.val)}</td>
+    <td style="font-size:.6rem;color:var(--muted);max-width:85px;overflow:hidden">${r.note||''}</td>
+    <td><button class="tbtn d" onclick="delR(${i})">✕</button></td>
+  </tr>`).join('');
+}
+function upd(i,k,v){aiRighe[i][k]=v;if(k==='qty'||k==='price')aiRighe[i].val=parseFloat((aiRighe[i].qty*aiRighe[i].price).toFixed(4));renderVTable();}
+function delR(i){aiRighe.splice(i,1);renderVTable();}
+function addRigaVuota(){aiRighe.push({mat:'',cat:'Altro',qty:1,unit:'PZ',price:0,val:0,note:''});renderVTable();}
+function backTo1(){stepUI(1);}
+
+function confirmSave(){
+  const num=document.getElementById('v-num')?.value.trim();
+  const dataStr=document.getElementById('v-data')?.value;
+  const fornitore=document.getElementById('v-for')?.value.trim();
+  if(!num){alert('Inserisci il numero documento.');document.getElementById('v-num').focus();return;}
+  if(!dataStr){alert('Inserisci la data.');return;}
+  if(!fornitore){alert('Inserisci il fornitore.');document.getElementById('v-for').focus();return;}
+  if(!aiRighe.length){alert('Nessun articolo da salvare.');return;}
+  if(BOLLE.some(b=>b.num===num&&b.fornitore===fornitore)){
+    if(!confirm(`Esiste già una bolla "${num}" per "${fornitore}". Salva comunque?`))return;
+  }
+  const d=new Date(dataStr);
+  const totale=parseFloat(sumV(aiRighe,'val').toFixed(2));
+  const bolla={num,data:dataStr,fornitore,year:d.getFullYear(),month:d.getMonth()+1,totale,fonte:'AI',righe:aiRighe.map(r=>({mat:r.mat,cat:r.cat,qty:r.qty,unit:r.unit,price:r.price,val:r.val}))};
+  BOLLE.push(bolla);
+  stepUI(4);
+  document.getElementById('ok-msg').textContent=`✅ Bolla ${num} — ${fornitore} — ${MESI[d.getMonth()]} ${d.getFullYear()} — € ${fmt(totale)}`;
+  const byCat=Object.entries(grp(bolla.righe,'cat')).map(([c,rr])=>({c,v:sumV(rr,'val')})).sort((a,b)=>b.v-a.v);
+  document.getElementById('ok-sum').innerHTML=`
+    <div class="mgrid" style="margin-bottom:1rem">
+      <div class="met"><div class="ml">Fornitore</div><div style="font-size:.85rem;color:var(--cream);margin-top:3px">${fornitore}</div></div>
+      <div class="met"><div class="ml">Data</div><div style="font-size:.85rem;color:var(--cream);margin-top:3px">${dataStr}</div></div>
+      <div class="met"><div class="ml">Mese competenza</div><div style="font-size:.85rem;color:var(--cream);margin-top:3px">${MESI[d.getMonth()]} ${d.getFullYear()}</div></div>
+      <div class="met"><div class="ml">Totale</div><div class="mv">€ ${fmt(totale)}</div></div>
+      <div class="met"><div class="ml">Articoli</div><div class="mv">${bolla.righe.length}</div></div>
+    </div>
+    <div class="panel" style="margin:0"><div class="ptitle">Ripartizione per categoria</div>
+    ${byCat.map(({c,v})=>{const col=cCol(c);return`<div class="br-row"><span class="br-lbl">${c}</span><div class="br-trk"><div class="br-fil" style="width:${Math.round(v/totale*100)}%;background:${col}"></div></div><span class="br-val">€ ${fmt(v)}</span></div>`;}).join('')}
+    </div>`;
+  aiRighe=[];
+}
+
+function resetAll(){
+  aiRighe=[];aiDoc={};imgs=[];
+  document.getElementById('pgrid').innerHTML='';
+  uz.classList.remove('has');
+  document.getElementById('uico').textContent='🪪';
+  document.getElementById('utxt').textContent='Foto o immagine della bolla';
+  document.getElementById('acq-bnr').style.display='none';
+  document.getElementById('ai-btn').disabled=true;
+  document.getElementById('aibox').classList.remove('on');
+  stepUI(1);
+}
+
+function stepUI(n){
+  [1,3,4].forEach(i=>{
+    const el=document.getElementById('step'+i);
+    if(el)el.style.display=i===n?'':'none';
+  });
+  // Step 2 non ha un div separato — l'aibox nel step1 fa da step 2
+  [1,2,3,4].forEach(i=>{
+    const s=document.getElementById('st'+i);if(!s)return;
+    s.classList.remove('on','done');
+    if(i<n)s.classList.add('done');
+    else if(i===n)s.classList.add('on');
+  });
+}
+
+// ═══════════════════════════════════
+// ARCHIVIO BOLLE
+// ═══════════════════════════════════
+function renderBolle(){
+  fillY('b-year',renderBolle,true);
+  const year=document.getElementById('b-year')?.value||'';
+  fillM('b-month',renderBolle,year,true);fillF('b-for');
+  const month=document.getElementById('b-month')?.value;
+  const for_=document.getElementById('b-for')?.value||'';
+  const B=fB(year,month,for_).sort((a,b)=>b.data.localeCompare(a.data));
+  const empty=!BOLLE.length;
+  document.getElementById('b-empty').style.display=empty?'':'none';
+  document.getElementById('b-panel').style.display=empty?'none':'';
+  if(empty)return;
+  document.getElementById('b-cnt').textContent=`${B.length} boll${B.length===1?'a':'e'}`;
+  document.getElementById('b-tot').innerHTML=`<span class="price">€ ${fmt(sumV(B,'totale'))}</span>`;
+  document.getElementById('b-tbody').innerHTML=B.map(b=>{
+    const col=fCol(b.fornitore);
+    const arts=b.righe.slice(0,3).map(r=>`<span class="tag">${r.mat.slice(0,18)}${r.mat.length>18?'…':''}</span>`).join(' ')+(b.righe.length>3?` <span class="tag">+${b.righe.length-3}</span>`:'');
+    const idx=BOLLE.indexOf(b);
+    return`<tr>
+      <td class="tdc">${b.num}</td>
+      <td class="tdd">${b.data}</td>
+      <td style="color:${col};font-size:.75rem;font-weight:500">${b.fornitore}</td>
+      <td>${arts}</td>
+      <td><span class="price">€ ${fmt(b.totale)}</span></td>
+      <td><span class="tag">${b.fonte}</span></td>
+      <td class="tdact"><button class="tbtn d" onclick="delB(${idx})">🗑</button></td>
+    </tr>`;
+  }).join('')||`<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:2rem;font-size:.65rem">Nessuna bolla per questo filtro.</td></tr>`;
+}
+function delB(idx){
+  const b=BOLLE[idx];if(!b)return;
+  showModal(`Elimina bolla ${b.num}`,`Eliminare la bolla <strong style="color:var(--gold)">${b.num}</strong> del ${b.data}, ${b.fornitore}, € ${fmt(b.totale)}?<br><br>Operazione irreversibile.`,()=>{BOLLE.splice(idx,1);renderBolle();});
+}
+
+// ═══════════════════════════════════
+// GIACENZE
+// ═══════════════════════════════════
+function renderGiac(){
+  fillY('g-year',renderGiac,true);
+  const year=document.getElementById('g-year')?.value||'';
+  fillM('g-month',renderGiac,year,true);fillC('g-cat');
+  const month=document.getElementById('g-month')?.value;
+  const cat=document.getElementById('g-cat')?.value||'';
+  const ord=document.getElementById('g-ord')?.value||'val';
+  let R=fR(year,month);if(cat)R=R.filter(r=>r.cat===cat);
+  const noData=!allR().length;
+  document.getElementById('g-empty').style.display=noData?'':'none';
+  document.getElementById('g-panel').style.display=noData?'none':'';
+  if(noData)return;
+  const byM=grp(R,'mat');
+  let rows=Object.entries(byM).map(([mat,rr])=>({mat,cat:rr[0].cat,unit:rr[0].unit,fornitore:rr[0].fornitore,qty:sumV(rr,'qty'),pm:sumV(rr,'price')/rr.length,val:sumV(rr,'val')}));
+  if(ord==='val')rows.sort((a,b)=>b.val-a.val);
+  else if(ord==='mat')rows.sort((a,b)=>a.mat.localeCompare(b.mat));
+  else rows.sort((a,b)=>a.cat.localeCompare(b.cat)||b.val-a.val);
+  const tot=sumV(rows,'val'),T=sumV(fR(year,month),'val');
+  document.getElementById('g-sum').textContent=`${rows.length} articoli · Totale € ${fmt(tot)} · ${fmtP(T?tot/T*100:0)} della spesa`;
+  document.getElementById('g-tbody').innerHTML=rows.map(r=>{const col=cCol(r.cat),pct=T?r.val/T*100:0,fc=fCol(r.fornitore);return`<tr>
+    <td style="font-size:.75rem;font-weight:500;color:var(--cream)">${r.mat}</td>
+    <td><span class="tag">${r.cat}</span></td>
+    <td>${fmtN(r.qty)}</td>
+    <td style="color:var(--muted)">${r.unit}</td>
+    <td><span class="price">€ ${fmt(r.pm)}</span></td>
+    <td style="color:var(--gold);font-weight:500">€ ${fmt(r.val)}</td>
+    <td><span class="tag">${fmtP(pct)}</span></td>
+    <td style="font-size:.62rem;color:${fc}">${r.fornitore.split(' ')[0]}</td>
+  </tr>`;}).join('');
+  document.getElementById('g-tfoot').innerHTML=`<tr style="color:var(--gold)"><td colspan="5" style="font-family:'Cormorant Garamond',serif">TOTALE</td><td>€ ${fmt(tot)}</td><td><span class="tag">${fmtP(T?tot/T*100:100)}</span></td><td></td></tr>`;
+}
+
+// ═══════════════════════════════════
+// ANALISI
+// ═══════════════════════════════════
+function renderAnal(){
+  fillY('an-year',renderAnal,true);
+  const year=document.getElementById('an-year')?.value||'';
+  fillM('an-month',renderAnal,year,true);fillC('an-fcat');
+  const month=document.getElementById('an-month')?.value;
+  const R=fR(year,month),T=sumV(R,'val');
+  const empty=!R.length;
+  document.getElementById('an-empty').style.display=empty?'':'none';
+  document.getElementById('an-body').style.display=empty?'none':'';
+  if(empty)return;
+  const fR2=Object.entries(grp(R,'fornitore')).map(([f,rr])=>({f,v:sumV(rr,'val')})).sort((a,b)=>b.v-a.v);
+  const mxF=fR2[0]?.v||1;
+  document.getElementById('an-for').innerHTML=fR2.map(({f,v})=>{const c=fCol(f),pct=T?v/T*100:0;return`<div style="margin-bottom:.85rem"><div style="display:flex;justify-content:space-between;font-size:.7rem;margin-bottom:.3rem"><span style="font-weight:500;color:${c}">${f}</span><span style="color:var(--muted)"><strong style="color:var(--cream2)">€ ${fmt(v)}</strong> <span class="tag">${fmtP(pct)}</span></span></div><div class="br-trk" style="height:5px"><div class="br-fil" style="width:${Math.round(v/mxF*100)}%;background:${c}"></div></div></div>`;}).join('');
+  const cR=Object.entries(grp(R,'cat')).map(([c,rr])=>({c,v:sumV(rr,'val')})).sort((a,b)=>b.v-a.v);
+  const mxC=cR[0]?.v||1;
+  document.getElementById('an-cat').innerHTML=cR.map(({c,v})=>{const col=cCol(c),pct=T?v/T*100:0;return`<div style="margin-bottom:.85rem"><div style="display:flex;justify-content:space-between;font-size:.7rem;margin-bottom:.3rem"><span style="font-weight:500;color:var(--cream)">${c}</span><span style="color:var(--muted)"><strong style="color:var(--cream2)">€ ${fmt(v)}</strong> <span class="tag">${fmtP(pct)}</span></span></div><div class="br-trk" style="height:5px"><div class="br-fil" style="width:${Math.round(v/mxC*100)}%;background:${col}"></div></div></div>`;}).join('');
+  renderProd();
+}
+function renderProd(){
+  const year=document.getElementById('an-year')?.value||'';
+  const month=document.getElementById('an-month')?.value;
+  const fc=document.getElementById('an-fcat')?.value||'';
+  let R=fR(year,month);if(fc)R=R.filter(r=>r.cat===fc);
+  const T=sumV(fR(year,month),'val');
+  const rows=Object.entries(grp(R,'mat')).map(([mat,rr])=>({mat,cat:rr[0].cat,for:rr[0].fornitore,v:sumV(rr,'val')})).sort((a,b)=>b.v-a.v);
+  const mxP=rows[0]?.v||1;
+  document.getElementById('an-prod').innerHTML=rows.map(p=>{const col=cCol(p.cat),fc2=fCol(p.for),pct=T?p.v/T*100:0;return`<tr>
+    <td style="font-size:.72rem;font-weight:500;color:var(--cream)">${p.mat}</td>
+    <td><span class="tag">${p.cat}</span></td>
+    <td style="font-size:.62rem;color:${fc2}">${p.for.split(' ')[0]}</td>
+    <td style="color:var(--gold);font-weight:500">€ ${fmt(p.v)}</td>
+    <td><span class="tag">${fmtP(pct)}</span></td>
+    <td style="min-width:80px"><div class="br-trk" style="height:5px"><div class="br-fil" style="width:${Math.round(p.v/mxP*100)}%;background:${col}"></div></div></td>
+  </tr>`;}).join('')||`<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:1.5rem;font-size:.65rem">Nessun prodotto.</td></tr>`;
+}
+
+// ═══════════════════════════════════
+// MODAL
+// ═══════════════════════════════════
+function showModal(t,b,cb){
+  document.getElementById('mod-t').textContent=t;
+  document.getElementById('mod-b').innerHTML=b;
+  document.getElementById('mod-ok').onclick=()=>{cb();closeModal();};
+  document.getElementById('modal').classList.add('on');
+}
+function closeModal(){document.getElementById('modal').classList.remove('on');}
+
+// ═══════════════════════════════════
+// EXPORT EXCEL
+// ═══════════════════════════════════
+function acw(ws,d){const c=d[0]?.length||0,w=Array(c).fill(8);d.forEach(r=>r.forEach((v,i)=>{const l=(v+'').length;if(l>w[i])w[i]=Math.min(l+2,50);}));ws['!cols']=w.map(wch=>({wch}));}
+function exportBolle(){
+  const wb=XLSX.utils.book_new();
+  const d=[['N.Doc','Data','Anno','Mese','Fornitore','N.Articoli','Totale €','Fonte']];
+  BOLLE.slice().sort((a,b)=>b.data.localeCompare(a.data)).forEach(b=>d.push([b.num,b.data,b.year,MESI[b.month-1],b.fornitore,b.righe.length,b.totale,b.fonte]));
+  const ws=XLSX.utils.aoa_to_sheet(d);acw(ws,d);XLSX.utils.book_append_sheet(wb,ws,'Bolle');
+  const d2=[['Bolla','Data','Anno','Mese','Fornitore','Articolo','Categoria','Qtà','UM','Prezzo €','Valore €']];
+  BOLLE.forEach(b=>b.righe.forEach(r=>d2.push([b.num,b.data,b.year,MESI[b.month-1],b.fornitore,r.mat,r.cat,r.qty,r.unit,r.price,r.val])));
+  const ws2=XLSX.utils.aoa_to_sheet(d2);acw(ws2,d2);XLSX.utils.book_append_sheet(wb,ws2,'Righe');
+  XLSX.writeFile(wb,`Bolle_${new Date().toISOString().slice(0,10)}.xlsx`);
+}
+function exportGiac(){
+  const year=document.getElementById('g-year')?.value||'';
+  const month=document.getElementById('g-month')?.value;
+  const R=fR(year,month),T=sumV(R,'val');
+  const rows=Object.entries(grp(R,'mat')).map(([mat,rr])=>({mat,cat:rr[0].cat,unit:rr[0].unit,fornitore:rr[0].fornitore,qty:sumV(rr,'qty'),pm:sumV(rr,'price')/rr.length,val:sumV(rr,'val')})).sort((a,b)=>b.val-a.val);
+  const wb=XLSX.utils.book_new();
+  const d=[['Articolo','Categoria','Qtà','UM','Prezzo medio €','Valore €','%','Fornitore']];
+  rows.forEach(r=>d.push([r.mat,r.cat,+r.qty.toFixed(3),r.unit,+r.pm.toFixed(4),+r.val.toFixed(2),+(T?r.val/T*100:0).toFixed(2),r.fornitore]));
+  d.push(['TOTALE','','','','',+T.toFixed(2),100,'']);
+  const ws=XLSX.utils.aoa_to_sheet(d);acw(ws,d);XLSX.utils.book_append_sheet(wb,ws,'Giacenze');
+  XLSX.writeFile(wb,`Giacenze_${new Date().toISOString().slice(0,10)}.xlsx`);
+}
+function exportAnn(){
+  const year=document.getElementById('a-year')?.value||new Date().getFullYear();
+  const R=fR(year,''),B=fB(year,'',''),T=sumV(R,'val');
+  const wb=XLSX.utils.book_new();
+  const d=[['Mese','N.Bolle','N.Articoli','Totale €','% anno']];
+  for(let m=1;m<=12;m++){const rm=R.filter(r=>r.month===m),bm=B.filter(b=>b.month===m),tv=sumV(rm,'val');d.push([MESI[m-1],bm.length,new Set(rm.map(r=>r.mat)).size,+tv.toFixed(2),+(T?tv/T*100:0).toFixed(2)]);}
+  d.push(['TOTALE',B.length,new Set(R.map(r=>r.mat)).size,+T.toFixed(2),100]);
+  const ws=XLSX.utils.aoa_to_sheet(d);acw(ws,d);XLSX.utils.book_append_sheet(wb,ws,'Mensile');
+  const fors=allF();const d2=[['Fornitore',...MSH,'TOTALE']];
+  fors.forEach(f=>{const row=[f];let t=0;for(let m=1;m<=12;m++){const v=sumV(R.filter(r=>r.fornitore===f&&r.month===m),'val');row.push(+v.toFixed(2));t+=v;}row.push(+t.toFixed(2));d2.push(row);});
+  const ws2=XLSX.utils.aoa_to_sheet(d2);acw(ws2,d2);XLSX.utils.book_append_sheet(wb,ws2,'Fornitori x mese');
+  const cats=allC();const d3=[['Categoria',...MSH,'TOTALE']];
+  cats.forEach(c=>{const row=[c];let t=0;for(let m=1;m<=12;m++){const v=sumV(R.filter(r=>r.cat===c&&r.month===m),'val');row.push(+v.toFixed(2));t+=v;}row.push(+t.toFixed(2));d3.push(row);});
+  const ws3=XLSX.utils.aoa_to_sheet(d3);acw(ws3,d3);XLSX.utils.book_append_sheet(wb,ws3,'Categorie x mese');
+  XLSX.writeFile(wb,`Anno_${year}_${new Date().toISOString().slice(0,10)}.xlsx`);
+}
+function exportPivot(){
+  const year=document.getElementById('pv-year')?.value||'';
+  const rk=document.getElementById('pv-rows')?.value||'fornitore';
+  const ck=document.getElementById('pv-cols')?.value||'month';
+  const R=fR(year,''),T=sumV(R,'val');
+  const rV=rk==='fornitore'?allF():allC();
+  let cV;
+  if(ck==='month')cV=[...new Set(R.map(r=>r.month))].sort((a,b)=>a-b).map(m=>({k:m,l:MSH[m-1]}));
+  else if(ck==='fornitore')cV=allF().map(f=>({k:f,l:f}));
+  else cV=allC().map(c=>({k:c,l:c}));
+  const mx={},cT_={};
+  rV.forEach(rv=>{mx[rv]={_t:0};cV.forEach(cv=>{mx[rv][cv.k]=0;});});
+  cV.forEach(cv=>{cT_[cv.k]=0;});
+  R.forEach(r=>{const rv=rk==='fornitore'?r.fornitore:r.cat;const ck2=ck==='month'?r.month:ck==='fornitore'?r.fornitore:r.cat;if(mx[rv]&&cT_[ck2]!==undefined){mx[rv][ck2]+=r.val;mx[rv]._t+=r.val;cT_[ck2]+=r.val;}});
+  const wb=XLSX.utils.book_new();
+  const hdr=[rk==='fornitore'?'Fornitore':'Categoria',...cV.map(cv=>cv.l),'TOTALE'];
+  const d=[hdr];rV.forEach(rv=>d.push([rv,...cV.map(cv=>+(mx[rv][cv.k]||0).toFixed(2)),+mx[rv]._t.toFixed(2)]));d.push(['TOTALE',...cV.map(cv=>+(cT_[cv.k]||0).toFixed(2)),+T.toFixed(2)]);
+  const ws=XLSX.utils.aoa_to_sheet(d);acw(ws,d);XLSX.utils.book_append_sheet(wb,ws,'Pivot €');
+  XLSX.writeFile(wb,`Pivot_${year}_${new Date().toISOString().slice(0,10)}.xlsx`);
+}
+function exportAnal(){
+  const year=document.getElementById('an-year')?.value||'';
+  const month=document.getElementById('an-month')?.value;
+  const R=fR(year,month),T=sumV(R,'val');
+  const wb=XLSX.utils.book_new();
+  const d1=[['Fornitore','Valore €','%','N.Articoli']];Object.entries(grp(R,'fornitore')).map(([f,rr])=>({f,v:sumV(rr,'val'),n:new Set(rr.map(r=>r.mat)).size})).sort((a,b)=>b.v-a.v).forEach(({f,v,n})=>d1.push([f,+v.toFixed(2),+(T?v/T*100:0).toFixed(2),n]));
+  const ws1=XLSX.utils.aoa_to_sheet(d1);acw(ws1,d1);XLSX.utils.book_append_sheet(wb,ws1,'Fornitori');
+  const d2=[['Categoria','Valore €','%','N.Articoli']];Object.entries(grp(R,'cat')).map(([c,rr])=>({c,v:sumV(rr,'val'),n:new Set(rr.map(r=>r.mat)).size})).sort((a,b)=>b.v-a.v).forEach(({c,v,n})=>d2.push([c,+v.toFixed(2),+(T?v/T*100:0).toFixed(2),n]));
+  const ws2=XLSX.utils.aoa_to_sheet(d2);acw(ws2,d2);XLSX.utils.book_append_sheet(wb,ws2,'Categorie');
+  const d3=[['Prodotto','Categoria','Fornitore','Valore €','%']];Object.entries(grp(R,'mat')).map(([mat,rr])=>({mat,cat:rr[0].cat,for:rr[0].fornitore,v:sumV(rr,'val')})).sort((a,b)=>b.v-a.v).forEach(p=>d3.push([p.mat,p.cat,p.for,+p.v.toFixed(2),+(T?p.v/T*100:0).toFixed(2)]));
+  const ws3=XLSX.utils.aoa_to_sheet(d3);acw(ws3,d3);XLSX.utils.book_append_sheet(wb,ws3,'Prodotti');
+  XLSX.writeFile(wb,`Analisi_${new Date().toISOString().slice(0,10)}.xlsx`);
+}
+
+// ═══════════════════════════════════
+// INIT
+// ═══════════════════════════════════
+goV('dash');
+</script>
+</body>
+</html>
