@@ -849,13 +849,10 @@ Rispondi SOLO con JSON valido, zero backtick, zero testo aggiuntivo:
   document.getElementById('ai-msg').textContent='Lettura documento…';
 
   try{
-    const res=await fetch('https://magazzino-ai-proxy.monicarssi65.workers.dev',{
+    const res=await fetch('https://dark-limit-138emagazzino-proxy-api.monicarssi65.workers.dev',{
       method:'POST',
       headers:{
         'Content-Type':'application/json',
-        'x-api-key':'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',
-        'anthropic-version':'2023-06-01',
-        'anthropic-dangerous-direct-browser-calls':'true'
       },
       body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:4000,messages:[{role:'user',content:ca}]})
     });
