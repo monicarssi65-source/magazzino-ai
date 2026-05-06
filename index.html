@@ -651,7 +651,7 @@ function setDM(m){
   document.getElementById('d-month').style.display=m==='m'?'':'none';
   renderDash();
 }
-function renderDash(){
+window.renderDash=function renderDash(){
   const year=document.getElementById('d-year')?.value||'';
   const month=dashMode==='m'?(document.getElementById('d-month')?.value||''):'';
   const R=fR(year,month),B=fB(year,month,''),T=sumV(R,'val');
@@ -929,6 +929,14 @@ function confirmSave(){
   const totale=parseFloat(sumV(aiRighe,'val').toFixed(2));
   const bolla={num,data:dataStr,fornitore,year:d.getFullYear(),month:d.getMonth()+1,totale,fonte:'AI',righe:aiRighe.map(r=>({mat:r.mat,cat:r.cat,qty:r.qty,unit:r.unit,price:r.price,val:r.val}))};
   BOLLE.push(bolla);
+  // Salva su Firestore
+  if(window.db){
+    try{
+      const {collection,addDoc}=await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
+      const bollaId=`${bolla.fornitore}_${bolla.num}_${bolla.year}`.replace(/[^a-zA-Z0-9_]/g,'_');
+      await addDoc(collection(window.db,'bolle'),{...bolla,savedAt:new Date().toISOString()});
+    }catch(e){console.warn('Firebase save error',e);}
+  }
   stepUI(4);
   document.getElementById('ok-msg').textContent=`✅ Bolla ${num} — ${fornitore} — ${MESI[d.getMonth()]} ${d.getFullYear()} — € ${fmt(totale)}`;
   const byCat=Object.entries(grp(bolla.righe,'cat')).map(([c,rr])=>({c,v:sumV(rr,'val')})).sort((a,b)=>b.v-a.v);
@@ -1201,6 +1209,27 @@ goV('dash');
   window.db = db;
   window.storage = storage;
   console.log("✅ Firebase collegato!");
+
+  // Carica bolle da Firestore all'avvio
+  try{
+    const {collection,getDocs,orderBy,query}=await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
+    const q=query(collection(db,'bolle'),orderBy('savedAt','desc'));
+    const snap=await getDocs(q);
+    const loaded=[];
+    snap.forEach(doc=>{
+      const d=doc.data();
+      delete d.savedAt;
+      // evita duplicati
+      if(!loaded.some(b=>b.num===d.num&&b.fornitore===d.fornitore)){
+        loaded.push(d);
+      }
+    });
+    if(loaded.length>0){
+      window.BOLLE=loaded;
+      console.log('✅ Caricate '+loaded.length+' bolle da Firebase');
+      if(window.renderDash) window.renderDash();
+    }
+  }catch(e){console.warn('Firebase load error',e);}
 </script>
 
 </body>
