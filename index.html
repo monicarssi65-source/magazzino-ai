@@ -95,7 +95,7 @@ input:focus,select:focus{border-color:var(--gold)}select option{background:var(-
 <body>
 
 <div class="status-bar">
-  <span id="status-text"><span class="status-dot wait"></span> Caricamento...</span>
+  <span id="status-text"><span class="status-dot wait"></span> Caricamento dati in corso...</span>
   <span id="status-count"></span>
 </div>
 
@@ -123,7 +123,7 @@ input:focus,select:focus{border-color:var(--gold)}select option{background:var(-
 <header>
   <div>
     <div class="brand">Magazzino<em>AI</em></div>
-    <div class="brand-sub">Gestione acquisti · Cloud + Local</div>
+    <div class="brand-sub">Gestione acquisti · Storage locale garantito</div>
   </div>
   <nav class="hnav side-nav">
     <button class="nb on" id="nb-dash" onclick="goV('dash')">📊 Dashboard</button>
@@ -138,43 +138,18 @@ input:focus,select:focus{border-color:var(--gold)}select option{background:var(-
 
 <div class="wrap" id="main-wrap"></div>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, collection, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+<script>
+'use strict';
 
 // ═══════════════════════════════════
-// FIREBASE CONFIG
-// ═══════════════════════════════════
-const firebaseConfig = {
-  apiKey: "AIzaSyBZKKwVD-DohwmgMn4jFx7JDUkALQMNo6U",
-  authDomain: "magazzino-ai-a8508.firebaseapp.com",
-  projectId: "magazzino-ai-a8508",
-  storageBucket: "magazzino-ai-a8508.firebasestorage.app",
-  messagingSenderId: "824699831917",
-  appId: "1:824699831917:web:4175a9c60e50c5cd256164",
-  measurementId: "G-YD5JBERME0"
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-const COLLECTION_NAME = 'magazzino_bolle';
-const USER_ID = 'monicarssi65'; // ID univoco utente
-
-// ═══════════════════════════════════
-// STORAGE ENGINE: localStorage + Firebase
+// STORAGE ENGINE: localStorage PRIMARIO
 // ═══════════════════════════════════
 const LS_KEY = 'magazzino_ai_bolle_v2';
-let syncEnabled = true;
-let isSyncing = false;
 
 function saveToLocalStorage() {
   try {
     localStorage.setItem(LS_KEY, JSON.stringify(window.BOLLE));
     updateStatus(window.BOLLE.length, true);
-    // Sync automatico su Firebase (debounce)
-    if (syncEnabled && !isSyncing) {
-      setTimeout(() => syncToFirebase(), 1000);
-    }
   } catch(e) {
     updateStatus(window.BOLLE.length, false, 'Storage pieno');
   }
@@ -191,57 +166,14 @@ function loadFromLocalStorage() {
   return [];
 }
 
-async function syncToFirebase() {
-  if (!syncEnabled || isSyncing) return;
-  isSyncing = true;
-  try {
-    const userRef = doc(db, COLLECTION_NAME, USER_ID);
-    await setDoc(userRef, {
-      bolle: window.BOLLE,
-      lastUpdate: new Date().toISOString(),
-      version: 2
-    }, { merge: true });
-    updateStatus(window.BOLLE.length, true, 'Sincronizzato');
-  } catch(e) {
-    console.error('Firebase sync error:', e);
-    updateStatus(window.BOLLE.length, false, 'Offline');
-  } finally {
-    isSyncing = false;
-  }
-}
-
-async function loadFromFirebase() {
-  try {
-    const userRef = doc(db, COLLECTION_NAME, USER_ID);
-    onSnapshot(userRef, (docSnap) => {
-      if (docSnap.exists()) {
-        const data = docSnap.data();
-        if (data.bolle && Array.isArray(data.bolle)) {
-          // Merge con localStorage ( Firebase è la fonte di verità )
-          window.BOLLE = data.bolle;
-          localStorage.setItem(LS_KEY, JSON.stringify(data.bolle));
-          updateStatus(data.bolle.length, true, 'Cloud');
-          if (window.renderDash) renderDash();
-        }
-      } else {
-        // Primo avvio: salva localStorage su Firebase
-        if (window.BOLLE.length > 0) {
-          syncToFirebase();
-        }
-      }
-    });
-  } catch(e) {
-    console.error('Firebase load error:', e);
-  }
-}
-
-function updateStatus(count, ok, source) {
+function updateStatus(count, ok, msg) {
   const el = document.getElementById('status-text');
   const cnt = document.getElementById('status-count');
-  const src = source || (ok ? 'Local' : 'Err');
-  const dotClass = ok ? 'ok' : 'err';
-  const msg = ok ? `Dati salvati (${src})` : 'Errore';
-  el.innerHTML = `<span class="status-dot ${dotClass}"></span> ${msg}`;
+  if (ok) {
+    el.innerHTML = '<span class="status-dot ok"></span> Dati salvati localmente';
+  } else {
+    el.innerHTML = '<span class="status-dot err"></span> ' + (msg || 'Errore salvataggio');
+  }
   cnt.textContent = count > 0 ? count + ' bolle' : '';
 }
 
@@ -249,7 +181,6 @@ function updateStatus(count, ok, source) {
 // DATI
 // ═══════════════════════════════════
 window.BOLLE = loadFromLocalStorage();
-window.db = db; // Espone per debug
 const FCOLS=['#C9A84C','#E8D5A3','#81c784','#64b5f6','#e57373','#ba68c8','#4db6ac','#ffb74d','#a1887f','#90a4ae'];
 const CCOLS=['#C9A84C','#81c784','#64b5f6','#e57373','#ba68c8','#4db6ac','#ffb74d','#a1887f','#f06292','#aed581'];
 const MESI=['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
@@ -360,7 +291,7 @@ function buildHTML(){
 // NAVIGAZIONE
 // ═══════════════════════════════════
 const VIEWS=['dash','ann','pivot','nuova','bolle','giac','anal'];
-window.goV = function(id){
+function goV(id){
   VIEWS.forEach(v=>{
     const el=document.getElementById('v-'+v);if(el)el.style.display=v===id?'':'none';
     const nb=document.getElementById('nb-'+v);if(nb)nb.classList.toggle('on',v===id);
@@ -378,8 +309,8 @@ window.goV = function(id){
 // ═══════════════════════════════════
 // DASHBOARD
 // ═══════════════════════════════════
-window.setDM = function(m){dashMode=m;document.getElementById('d-month').style.display=m==='m'?'':'none';renderDash()}
-window.renderDash = function(){
+function setDM(m){dashMode=m;document.getElementById('d-month').style.display=m==='m'?'':'none';renderDash()}
+function renderDash(){
   const year=document.getElementById('d-year')?.value||'';
   const month=dashMode==='m'?(document.getElementById('d-month')?.value||''):'';
   const R=fR(year,month),B=fB(year,month,''),T=sumV(R,'val');
@@ -400,7 +331,7 @@ window.renderDash = function(){
 // ═══════════════════════════════════
 // ANNUALE
 // ═══════════════════════════════════
-window.renderAnn = function(){
+function renderAnn(){
   const year=document.getElementById('a-year')?.value||'';
   const B=fB(year,'',''),R=fR(year,''),T=sumV(R,'val'),nA=new Set(R.map(r=>r.mat)).size;
   if(!B.length){document.getElementById('a-empty').style.display='';document.getElementById('a-body').style.display='none';return}
@@ -416,7 +347,7 @@ window.renderAnn = function(){
 // ═══════════════════════════════════
 // PIVOT
 // ═══════════════════════════════════
-window.renderPivot = function(){
+function renderPivot(){
   const year=document.getElementById('pv-year')?.value||'';
   const rk=document.getElementById('pv-rows')?.value||'fornitore';
   const ck=document.getElementById('pv-cols')?.value||'month';
@@ -450,9 +381,9 @@ function upd(i,k,v){aiRighe[i][k]=v;if(k==='qty'||k==='price')aiRighe[i].val=par
 function delR(i){aiRighe.splice(i,1);renderVTable()}
 function addRigaVuota(){aiRighe.push({mat:'',cat:'Altro',qty:1,unit:'PZ',price:0,val:0,note:''});renderVTable()}
 function backTo1(){stepUI(1)}
-window.resetAll = function(){aiRighe=[];aiDoc={};imgs=[];document.getElementById('pgrid').innerHTML='';document.getElementById('uzone').classList.remove('has');document.getElementById('uico').textContent='🪪';document.getElementById('utxt').textContent='Foto o immagine della bolla';document.getElementById('ai-btn').disabled=true;stepUI(1)}
+function resetAll(){aiRighe=[];aiDoc={};imgs=[];document.getElementById('pgrid').innerHTML='';document.getElementById('uzone').classList.remove('has');document.getElementById('uico').textContent='🪪';document.getElementById('utxt').textContent='Foto o immagine della bolla';document.getElementById('ai-btn').disabled=true;stepUI(1)}
 
-window.doAI = async function(){
+async function doAI(){
   document.getElementById('ai-btn').disabled=true;document.getElementById('aibox').classList.add('on');document.getElementById('ai-msg').textContent='Lettura documento…';
   const ca=[];imgs.forEach(img=>{if(img.mime==='application/pdf'){ca.push({type:'document',source:{type:'base64',media_type:'application/pdf',data:img.base64}})}else{ca.push({type:'image',source:{type:'base64',media_type:img.mime,data:img.base64}})}});
   ca.push({type:'text',text:`Analizza questo documento di trasporto/DDT e restituisci SOLO JSON valido: {"num_documento":"","data":"YYYY-MM-DD","fornitore":"","righe":[{"mat":"","cat":"","qty":0,"unit":"","price":0,"val":0,"note":""}],"totale":0,"anomalie":[],"note_generali":""}. Categorie possibili: ${CATS.join(', ')}`});
@@ -470,7 +401,7 @@ window.doAI = async function(){
   }catch(err){document.getElementById('aibox').classList.remove('on');document.getElementById('ai-btn').disabled=false;alert('Errore AI: '+err.message)}
 }
 
-window.confirmSave = function(){
+function confirmSave(){
   const num=document.getElementById('v-num')?.value.trim();
   const dataStr=document.getElementById('v-data')?.value;
   const fornitore=document.getElementById('v-for')?.value.trim();
@@ -487,7 +418,7 @@ window.confirmSave = function(){
 // ═══════════════════════════════════
 // ARCHIVIO BOLLE
 // ═══════════════════════════════════
-window.renderBolle = function(){
+function renderBolle(){
   fillY('b-year',renderBolle,true);const year=document.getElementById('b-year')?.value||'';fillM('b-month',renderBolle,year,true);fillF('b-for');
   const month=document.getElementById('b-month')?.value;const for_=document.getElementById('b-for')?.value||'';
   const B=fB(year,month,for_).sort((a,b)=>b.data.localeCompare(a.data));
@@ -496,12 +427,12 @@ window.renderBolle = function(){
   document.getElementById('b-cnt').textContent=B.length+' bolle';document.getElementById('b-tot').innerHTML='<span class="price">€ '+fmt(sumV(B,'totale'))+'</span>';
   document.getElementById('b-tbody').innerHTML=B.map(b=>{const idx=BOLLE.indexOf(b);return`<tr><td class="tdc">${b.num}</td><td class="tdd">${b.data}</td><td style="color:${fCol(b.fornitore)}">${b.fornitore}</td><td>${b.righe.length} art.</td><td><span class="price">€ ${fmt(b.totale)}</span></td><td><span class="tag">${b.fonte}</span></td><td class="tdact"><button class="tbtn d" onclick="delB(${idx})">🗑</button></td></tr>`}).join('')||'<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:2rem">Nessuna bolla per questo filtro.</td></tr>';
 }
-window.delB = function(idx){if(!confirm('Eliminare questa bolla?'))return;BOLLE.splice(idx,1);saveToLocalStorage();renderBolle()}
+function delB(idx){if(!confirm('Eliminare questa bolla?'))return;BOLLE.splice(idx,1);saveToLocalStorage();renderBolle()}
 
 // ═══════════════════════════════════
 // GIACENZE
 // ═══════════════════════════════════
-window.renderGiac = function(){
+function renderGiac(){
   fillY('g-year',renderGiac,true);const year=document.getElementById('g-year')?.value||'';fillM('g-month',renderGiac,year,true);fillC('g-cat');
   const month=document.getElementById('g-month')?.value;const cat=document.getElementById('g-cat')?.value||'';const ord=document.getElementById('g-ord')?.value||'val';
   let R=fR(year,month);if(cat)R=R.filter(r=>r.cat===cat);
@@ -518,7 +449,7 @@ window.renderGiac = function(){
 // ═══════════════════════════════════
 // ANALISI
 // ═══════════════════════════════════
-window.renderAnal = function(){
+function renderAnal(){
   fillY('an-year',renderAnal,true);const year=document.getElementById('an-year')?.value||'';fillM('an-month',renderAnal,year,true);fillC('an-fcat');
   const month=document.getElementById('an-month')?.value;const R=fR(year,month),T=sumV(R,'val');
   if(!R.length){document.getElementById('an-empty').style.display='';document.getElementById('an-body').style.display='none';return}
@@ -540,24 +471,21 @@ function renderProd(){
 // EXPORT
 // ═══════════════════════════════════
 function acw(ws,d){const c=d[0]?.length||0,w=Array(c).fill(8);d.forEach(r=>r.forEach((v,i)=>{const l=(v+'').length;if(l>w[i])w[i]=Math.min(l+2,50)}));ws['!cols']=w.map(wch=>({wch}))}
-window.exportBolle = function(){const wb=XLSX.utils.book_new();const d=[['N.Doc','Data','Fornitore','Totale','Fonte']];BOLLE.forEach(b=>d.push([b.num,b.data,b.fornitore,b.totale,b.fonte]));const ws=XLSX.utils.aoa_to_sheet(d);acw(ws,d);XLSX.utils.book_append_sheet(wb,ws,'Bolle');XLSX.writeFile(wb,'Bolle.xlsx')}
-window.exportGiac = function(){const d=[['Articolo','Categoria','Qtà','UM','Prezzo medio','Valore']];const R=fR('','');Object.entries(grp(R,'mat')).forEach(([mat,rr])=>d.push([mat,rr[0].cat,sumV(rr,'qty'),rr[0].unit,sumV(rr,'price')/rr.length,sumV(rr,'val')]));const wb=XLSX.utils.book_new();const ws=XLSX.utils.aoa_to_sheet(d);acw(ws,d);XLSX.utils.book_append_sheet(wb,ws,'Giacenze');XLSX.writeFile(wb,'Giacenze.xlsx')}
-window.exportAnn = function(){const year=document.getElementById('a-year')?.value||new Date().getFullYear();const d=[['Mese','Totale']];for(let m=1;m<=12;m++)d.push([MESI[m-1],sumV(fR(year,m),'val')]);const wb=XLSX.utils.book_new();const ws=XLSX.utils.aoa_to_sheet(d);acw(ws,d);XLSX.utils.book_append_sheet(wb,ws,'Annuale');XLSX.writeFile(wb,'Annuale_'+year+'.xlsx')}
-window.exportPivot = function(){const wb=XLSX.utils.book_new();const ws=XLSX.utils.aoa_to_sheet([['Pivot']]);XLSX.utils.book_append_sheet(wb,ws,'Pivot');XLSX.writeFile(wb,'Pivot.xlsx')}
-window.exportAnal = function(){const wb=XLSX.utils.book_new();const ws=XLSX.utils.aoa_to_sheet([['Analisi']]);XLSX.utils.book_append_sheet(wb,ws,'Analisi');XLSX.writeFile(wb,'Analisi.xlsx')}
+function exportBolle(){const wb=XLSX.utils.book_new();const d=[['N.Doc','Data','Fornitore','Totale','Fonte']];BOLLE.forEach(b=>d.push([b.num,b.data,b.fornitore,b.totale,b.fonte]));const ws=XLSX.utils.aoa_to_sheet(d);acw(ws,d);XLSX.utils.book_append_sheet(wb,ws,'Bolle');XLSX.writeFile(wb,'Bolle.xlsx')}
+function exportGiac(){const d=[['Articolo','Categoria','Qtà','UM','Prezzo medio','Valore']];const R=fR('','');Object.entries(grp(R,'mat')).forEach(([mat,rr])=>d.push([mat,rr[0].cat,sumV(rr,'qty'),rr[0].unit,sumV(rr,'price')/rr.length,sumV(rr,'val')]));const wb=XLSX.utils.book_new();const ws=XLSX.utils.aoa_to_sheet(d);acw(ws,d);XLSX.utils.book_append_sheet(wb,ws,'Giacenze');XLSX.writeFile(wb,'Giacenze.xlsx')}
+function exportAnn(){const year=document.getElementById('a-year')?.value||new Date().getFullYear();const d=[['Mese','Totale']];for(let m=1;m<=12;m++)d.push([MESI[m-1],sumV(fR(year,m),'val')]);const wb=XLSX.utils.book_new();const ws=XLSX.utils.aoa_to_sheet(d);acw(ws,d);XLSX.utils.book_append_sheet(wb,ws,'Annuale');XLSX.writeFile(wb,'Annuale_'+year+'.xlsx')}
+function exportPivot(){const wb=XLSX.utils.book_new();const ws=XLSX.utils.aoa_to_sheet([['Pivot']]);XLSX.utils.book_append_sheet(wb,ws,'Pivot');XLSX.writeFile(wb,'Pivot.xlsx')}
+function exportAnal(){const wb=XLSX.utils.book_new();const ws=XLSX.utils.aoa_to_sheet([['Analisi']]);XLSX.utils.book_append_sheet(wb,ws,'Analisi');XLSX.writeFile(wb,'Analisi.xlsx')}
 
-window.showModal = function(t,b,cb){document.getElementById('mod-t').textContent=t;document.getElementById('mod-b').innerHTML=b;document.getElementById('mod-ok').onclick=()=>{cb();closeModal()};document.getElementById('modal').classList.add('on')}
-window.closeModal = function(){document.getElementById('modal').classList.remove('on')}
+function showModal(t,b,cb){document.getElementById('mod-t').textContent=t;document.getElementById('mod-b').innerHTML=b;document.getElementById('mod-ok').onclick=()=>{cb();closeModal()};document.getElementById('modal').classList.add('on')}
+function closeModal(){document.getElementById('modal').classList.remove('on')}
 
 // ═══════════════════════════════════
 // AVVIO APP
 // ═══════════════════════════════════
 buildHTML();
-updateStatus(window.BOLLE.length, true, 'Init');
+updateStatus(window.BOLLE.length, true);
 goV('dash');
-
-// Carica da Firebase (sync in tempo reale)
-loadFromFirebase();
 </script>
 
 </body>
