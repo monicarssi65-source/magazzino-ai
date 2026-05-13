@@ -19,8 +19,7 @@ header{border-bottom:1px solid var(--brd);padding:.9rem 1.5rem;display:flex;alig
 .brand-sub{font-size:.5rem;letter-spacing:.22em;text-transform:uppercase;color:var(--muted)}
 .hnav{display:flex;gap:.35rem;flex-wrap:wrap;align-items:center}
 .nb{font-family:'DM Mono',monospace;font-size:.55rem;letter-spacing:.1em;text-transform:uppercase;padding:.42rem .75rem;border-radius:3px;border:1px solid var(--brd);background:transparent;color:var(--muted);cursor:pointer;transition:all .2s;white-space:nowrap}
-.nb:hover{color:var(--gold);border-color:var(--brd2)}
-.nb.on{color:var(--gold);border-color:var(--gold);background:rgba(201,168,76,.1)}
+.nb:hover{color:var(--gold);border-color:var(--brd2)}.nb.on{color:var(--gold);border-color:var(--gold);background:rgba(201,168,76,.1)}
 .wrap{max-width:1100px;margin:0 auto;padding:1.5rem 1.25rem 5rem}
 .panel{background:var(--dark2);border:1px solid var(--brd);border-radius:6px;padding:1.4rem;margin-bottom:1.1rem}
 .ptitle{font-family:'Cormorant Garamond',serif;font-size:1.15rem;color:var(--gold);margin-bottom:1rem;padding-bottom:.6rem;border-bottom:1px solid var(--brd);display:flex;align-items:center;gap:.6rem;flex-wrap:wrap}
@@ -35,7 +34,7 @@ input:focus,select:focus{border-color:var(--gold)}select option{background:var(-
 .btn-d{background:transparent;color:var(--red-txt);border:1px solid rgba(192,57,43,.4)}.btn-d:hover{background:var(--red)}
 .btn-sm{padding:.38rem .75rem;font-size:.55rem}.brow{display:flex;gap:.6rem;flex-wrap:wrap;align-items:center}
 .uzone{border:2px dashed var(--brd2);border-radius:6px;padding:1.75rem;text-align:center;transition:all .3s;background:rgba(201,168,76,.02);margin-bottom:.85rem}
-.uzone.drag{border-color:var(--gold);background:rgba(201,168,76,.06)}.uzone.has{border-color:var(--gold);background:rgba(201,168,76,.08)}
+.uzone.has{border-color:var(--gold);background:rgba(201,168,76,.08)}
 .uico{font-size:2.2rem;margin-bottom:.5rem;opacity:.65;display:block}
 .utxt{font-family:'Cormorant Garamond',serif;font-size:1.05rem;font-weight:300;color:var(--cream2);margin-bottom:.2rem}
 .usub{font-size:.54rem;letter-spacing:.13em;color:var(--muted);text-transform:uppercase}
@@ -88,17 +87,20 @@ input:focus,select:focus{border-color:var(--gold)}select option{background:var(-
 .mob-bar{display:none;position:fixed;bottom:0;left:0;right:0;background:rgba(26,20,16,.97);border-top:1px solid var(--brd);z-index:200;padding-bottom:env(safe-area-inset-bottom)}.mob-tabs{display:flex}
 .mt{flex:1;display:flex;flex-direction:column;align-items:center;gap:1px;padding:7px 2px 5px;font-family:'DM Mono',monospace;font-size:.44rem;font-weight:400;color:var(--muted);cursor:pointer;border:none;background:none;text-transform:uppercase;letter-spacing:.25px;transition:color .12s}.mt .mi{font-size:19px;line-height:1.2}.mt.on{color:var(--gold)}
 .status-bar{background:var(--dark3);border-bottom:1px solid var(--brd);padding:.3rem 1.5rem;font-size:.5rem;color:var(--muted);display:flex;justify-content:space-between;align-items:center;letter-spacing:.08em;text-transform:uppercase}
-.status-dot{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:5px}.status-dot.ok{background:#81c784}.status-dot.err{background:#e57373}.status-dot.wait{background:#ffb74d;animation:pulse 1s infinite}@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
-@media(max-width:700px){.side-nav{display:none}.mob-bar{display:block}.wrap{padding:.85rem .85rem calc(68px + env(safe-area-inset-bottom))}.mgrid{grid-template-columns:repeat(2,1fr)}.ptitle{font-size:1rem}.atable{font-size:.65rem}.tw{overflow-x:auto;-webkit-overflow-scrolling:touch}}.tw{overflow-x:auto}
+.status-dot{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:5px}.status-dot.ok{background:#81c784}.status-dot.err{background:#e57373}.status-dot.wait{background:#ffb74d;animation:blink 1s infinite}@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+/* MODAL MODIFICA */
+.mo-lg{max-width:820px;width:96%;max-height:88vh;overflow-y:auto}
+@media(max-width:700px){.side-nav{display:none}.mob-bar{display:block}.wrap{padding:.85rem .85rem calc(68px + env(safe-area-inset-bottom))}.mgrid{grid-template-columns:repeat(2,1fr)}.atable{font-size:.65rem}.tw{overflow-x:auto;-webkit-overflow-scrolling:touch}}.tw{overflow-x:auto}
 </style>
 </head>
 <body>
 
 <div class="status-bar">
-  <span id="status-text"><span class="status-dot wait"></span> Caricamento dati in corso...</span>
+  <span id="status-text"><span class="status-dot wait"></span> Connessione in corso...</span>
   <span id="status-count"></span>
 </div>
 
+<!-- MODAL CONFERMA -->
 <div class="mov" id="modal">
   <div class="mo">
     <div class="mot" id="mod-t"></div>
@@ -106,6 +108,33 @@ input:focus,select:focus{border-color:var(--gold)}select option{background:var(-
     <div class="brow">
       <button class="btn btn-d" id="mod-ok">Conferma</button>
       <button class="btn btn-o" onclick="closeModal()">Annulla</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL MODIFICA BOLLA -->
+<div class="mov" id="edit-modal">
+  <div class="mo mo-lg">
+    <div class="mot">✏️ Modifica bolla</div>
+    <div class="doc-grid" style="margin-bottom:1rem">
+      <div class="doc-f"><label>N. Documento</label><input id="e-num" placeholder="es. DDT-001"></div>
+      <div class="doc-f"><label>Data</label><input id="e-data" type="date"></div>
+      <div class="doc-f"><label>Fornitore</label><input id="e-for" placeholder="Ragione sociale"></div>
+      <div class="doc-f"><label>Totale calcolato</label><div id="e-tot" style="font-family:'Cormorant Garamond',serif;font-size:1.3rem;color:var(--gold);padding-top:4px"></div></div>
+    </div>
+    <div style="font-size:.5rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:.5rem">Righe prodotto</div>
+    <div class="tw" style="margin-bottom:.75rem">
+      <table class="rtable" style="min-width:640px">
+        <thead><tr><th style="min-width:180px">Articolo</th><th style="min-width:130px">Categoria</th><th style="width:62px">Qtà</th><th style="width:48px">UM</th><th style="width:80px">Prezzo €</th><th style="width:76px">Valore €</th><th style="width:36px"></th></tr></thead>
+        <tbody id="e-tbody"></tbody>
+      </table>
+    </div>
+    <div class="brow" style="margin-bottom:1rem">
+      <button class="btn btn-o btn-sm" onclick="editAddRiga()">+ Aggiungi riga</button>
+    </div>
+    <div class="brow">
+      <button class="btn btn-p" onclick="saveEdit()">✓ Salva modifiche</button>
+      <button class="btn btn-o" onclick="closeEditModal()">Annulla</button>
     </div>
   </div>
 </div>
@@ -123,7 +152,7 @@ input:focus,select:focus{border-color:var(--gold)}select option{background:var(-
 <header>
   <div>
     <div class="brand">Magazzino<em>AI</em></div>
-    <div class="brand-sub">Gestione acquisti · Storage locale garantito</div>
+    <div class="brand-sub">Gestione acquisti · Cloud + Local</div>
   </div>
   <nav class="hnav side-nav">
     <button class="nb on" id="nb-dash" onclick="goV('dash')">📊 Dashboard</button>
@@ -138,49 +167,117 @@ input:focus,select:focus{border-color:var(--gold)}select option{background:var(-
 
 <div class="wrap" id="main-wrap"></div>
 
-<script>
-'use strict';
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc, onSnapshot, query, orderBy } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
 // ═══════════════════════════════════
-// STORAGE ENGINE: localStorage PRIMARIO
+// FIREBASE CONFIG
+// ═══════════════════════════════════
+const firebaseConfig = {
+  apiKey: "AIzaSyAhtBZ-UIokFLr905fgwcRGmNJlKMUdew8",
+  authDomain: "hotel-derby-reception.firebaseapp.com",
+  projectId: "hotel-derby-reception",
+  storageBucket: "hotel-derby-reception.firebasestorage.app",
+  messagingSenderId: "10481064334",
+  appId: "1:10481064334:web:1f97bea596d1ea03086cdf",
+  measurementId: "G-V1R5E3CNLX"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const COLLECTION = 'magazzino_bolle';
+
+// ═══════════════════════════════════
+// STORAGE: LocalStorage + Firestore
 // ═══════════════════════════════════
 const LS_KEY = 'magazzino_ai_bolle_v2';
 
 function saveToLocalStorage() {
-  try {
-    localStorage.setItem(LS_KEY, JSON.stringify(window.BOLLE));
-    updateStatus(window.BOLLE.length, true);
-  } catch(e) {
-    updateStatus(window.BOLLE.length, false, 'Storage pieno');
-  }
+  try { localStorage.setItem(LS_KEY, JSON.stringify(window.BOLLE)); } catch(e) {}
 }
-
 function loadFromLocalStorage() {
-  try {
-    const data = localStorage.getItem(LS_KEY);
-    if (data) {
-      const parsed = JSON.parse(data);
-      if (Array.isArray(parsed)) return parsed;
-    }
-  } catch(e) {}
+  try { const d=localStorage.getItem(LS_KEY); if(d){const p=JSON.parse(d);if(Array.isArray(p))return p;} } catch(e) {}
   return [];
 }
 
-function updateStatus(count, ok, msg) {
+function setStatus(state, count, msg) {
   const el = document.getElementById('status-text');
   const cnt = document.getElementById('status-count');
-  if (ok) {
-    el.innerHTML = '<span class="status-dot ok"></span> Dati salvati localmente';
-  } else {
-    el.innerHTML = '<span class="status-dot err"></span> ' + (msg || 'Errore salvataggio');
+  if(!el) return;
+  const dots = {ok:'ok', err:'err', wait:'wait'};
+  const msgs = {
+    ok: 'Cloud + locale sincronizzati',
+    err: msg || 'Errore connessione — dati locali',
+    wait: 'Connessione in corso...'
+  };
+  el.innerHTML = `<span class="status-dot ${dots[state]}"></span> ${msgs[state]}`;
+  if(cnt) cnt.textContent = count > 0 ? count + ' bolle' : '';
+}
+
+// Salva bolla su Firestore — restituisce il doc id
+async function saveToFirestore(bolla) {
+  try {
+    const docRef = await addDoc(collection(db, COLLECTION), bolla);
+    return docRef.id;
+  } catch(e) {
+    console.warn('Firestore save error:', e);
+    return null;
   }
-  cnt.textContent = count > 0 ? count + ' bolle' : '';
+}
+
+// Aggiorna bolla su Firestore
+async function updateFirestore(firestoreId, bolla) {
+  if(!firestoreId) return;
+  try {
+    await updateDoc(doc(db, COLLECTION, firestoreId), bolla);
+  } catch(e) { console.warn('Firestore update error:', e); }
+}
+
+// Elimina bolla da Firestore
+async function deleteFromFirestore(firestoreId) {
+  if(!firestoreId) return;
+  try {
+    await deleteDoc(doc(db, COLLECTION, firestoreId));
+  } catch(e) { console.warn('Firestore delete error:', e); }
+}
+
+// Carica tutte le bolle da Firestore e aggiorna BOLLE
+async function loadFromFirestore() {
+  setStatus('wait', 0);
+  try {
+    const snap = await getDocs(collection(db, COLLECTION));
+    const bolle = [];
+    snap.forEach(d => bolle.push({ ...d.data(), _firestoreId: d.id }));
+    // Ordina per data decrescente
+    bolle.sort((a,b) => b.data.localeCompare(a.data));
+    window.BOLLE = bolle;
+    saveToLocalStorage();
+    setStatus('ok', bolle.length);
+    refreshAll();
+  } catch(e) {
+    console.warn('Firestore load error:', e);
+    // Fallback a localStorage
+    window.BOLLE = loadFromLocalStorage();
+    setStatus('err', window.BOLLE.length, 'Solo locale');
+    refreshAll();
+  }
+}
+
+function refreshAll() {
+  const active = document.querySelector('.nb.on');
+  if(active) {
+    const id = active.id.replace('nb-','');
+    goV(id);
+  } else {
+    goV('dash');
+  }
 }
 
 // ═══════════════════════════════════
-// DATI
+// DATI GLOBALI
 // ═══════════════════════════════════
-window.BOLLE = loadFromLocalStorage();
+window.BOLLE = loadFromLocalStorage(); // carica locale subito
 const FCOLS=['#C9A84C','#E8D5A3','#81c784','#64b5f6','#e57373','#ba68c8','#4db6ac','#ffb74d','#a1887f','#90a4ae'];
 const CCOLS=['#C9A84C','#81c784','#64b5f6','#e57373','#ba68c8','#4db6ac','#ffb74d','#a1887f','#f06292','#aed581'];
 const MESI=['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
@@ -192,18 +289,19 @@ function fCol(f){if(!_fc[f])_fc[f]=FCOLS[Object.keys(_fc).length%FCOLS.length];r
 function cCol(c){if(!_cc[c])_cc[c]=CCOLS[Object.keys(_cc).length%CCOLS.length];return _cc[c]}
 
 let dashMode='m', imgs=[], aiRighe=[], aiDoc={};
+let editIdx=-1, editRighe=[];
 
 const fmt=n=>parseFloat(n||0).toLocaleString('it-IT',{minimumFractionDigits:2,maximumFractionDigits:2});
 const fmtN=n=>parseFloat(n||0).toLocaleString('it-IT',{minimumFractionDigits:0,maximumFractionDigits:3});
 const fmtP=n=>parseFloat(n||0).toFixed(1)+'%';
 const sumV=(arr,k)=>arr.reduce((s,i)=>s+(parseFloat(i[k])||0),0);
 const grp=(arr,k)=>arr.reduce((a,i)=>{(a[i[k]]=a[i[k]]||[]).push(i);return a},{});
-const allR=()=>BOLLE.flatMap(b=>b.righe.map(r=>({...r,fornitore:b.fornitore,year:b.year,month:b.month,bolla:b.num,data:b.data})));
-const allF=()=>[...new Set(BOLLE.map(b=>b.fornitore))].sort();
+const allR=()=>window.BOLLE.flatMap(b=>b.righe.map(r=>({...r,fornitore:b.fornitore,year:b.year,month:b.month,bolla:b.num,data:b.data})));
+const allF=()=>[...new Set(window.BOLLE.map(b=>b.fornitore))].sort();
 const allC=()=>[...new Set(allR().map(r=>r.cat))].sort();
-const getYY=()=>{const yy=[...new Set(BOLLE.map(b=>b.year))].sort();return yy.length?yy:[new Date().getFullYear()]};
+const getYY=()=>{const yy=[...new Set(window.BOLLE.map(b=>b.year))].sort();return yy.length?yy:[new Date().getFullYear()]};
 function fR(year,month){let R=allR();if(year)R=R.filter(r=>r.year==year);if(month!==''&&month!=null)R=R.filter(r=>r.month==month);return R}
-function fB(year,month,for_){let B=BOLLE;if(year)B=B.filter(b=>b.year==year);if(month!==''&&month!=null)B=B.filter(b=>b.month==month);if(for_)B=B.filter(b=>b.fornitore===for_);return B}
+function fB(year,month,for_){let B=window.BOLLE;if(year)B=B.filter(b=>b.year==year);if(month!==''&&month!=null)B=B.filter(b=>b.month==month);if(for_)B=B.filter(b=>b.fornitore===for_);return B}
 
 function fillY(id,cb,addAll=false){
   const s=document.getElementById(id);if(!s)return;
@@ -217,7 +315,7 @@ function fillM(id,cb,year,addAll=true){
   const s=document.getElementById(id);if(!s)return;
   const p=s.value;while(s.options.length)s.remove(0);
   if(addAll){const o=document.createElement('option');o.value='';o.textContent='Tutti i mesi';s.appendChild(o)}
-  const mm=[...new Set(BOLLE.filter(b=>!year||b.year==year).map(b=>b.month))].sort((a,b)=>a-b);
+  const mm=[...new Set(window.BOLLE.filter(b=>!year||b.year==year).map(b=>b.month))].sort((a,b)=>a-b);
   mm.forEach(m=>{const o=document.createElement('option');o.value=m;o.textContent=MESI[m-1];s.appendChild(o)});
   if(p&&[...s.options].some(o=>o.value==p))s.value=p;
   if(cb)s.onchange=cb;
@@ -236,7 +334,7 @@ function fillC(id){
 }
 
 // ═══════════════════════════════════
-// RENDER HTML
+// BUILD HTML
 // ═══════════════════════════════════
 function buildHTML(){
   document.getElementById('main-wrap').innerHTML = `
@@ -251,35 +349,76 @@ function buildHTML(){
     </div>
   </div>
   <div id="d-empty" class="empty" style="display:none"><span class="empty-ico">📦</span><div class="empty-t">Nessuna bolla caricata</div><div class="empty-s">Vai su Carica Bolla per iniziare</div></div>
-  <div id="d-body"><div class="mgrid" id="d-met"></div><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:.9rem;margin-bottom:.9rem"><div class="panel" style="margin:0"><div class="ptitle">Fornitori</div><div id="d-fbars"></div></div><div class="panel" style="margin:0"><div class="ptitle">Categorie</div><div id="d-cbars"></div></div></div><div class="panel"><div class="ptitle">Bolle recenti</div><div id="d-recent"></div></div></div>
+  <div id="d-body"><div class="mgrid" id="d-met"></div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:.9rem;margin-bottom:.9rem">
+    <div class="panel" style="margin:0"><div class="ptitle">Fornitori</div><div id="d-fbars"></div></div>
+    <div class="panel" style="margin:0"><div class="ptitle">Categorie</div><div id="d-cbars"></div></div>
+  </div>
+  <div class="panel"><div class="ptitle">Bolle recenti</div><div id="d-recent"></div></div></div>
 </div>
+
 <div id="v-ann" style="display:none">
   <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.65rem;margin-bottom:1.25rem"><div style="font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-weight:300;color:var(--gold)">Vista Annuale</div><div class="brow"><select id="a-year" onchange="renderAnn()" style="width:auto;font-size:.62rem;padding:.4rem .6rem"></select><button class="btn btn-o btn-sm" onclick="exportAnn()">⬇ Excel</button></div></div>
   <div id="a-empty" class="empty" style="display:none"><span class="empty-ico">📅</span><div class="empty-t">Nessun dato</div></div>
   <div id="a-body"><div class="mgrid" id="a-met"></div><div class="panel"><div class="ptitle">Andamento mensile</div><div id="a-chart"></div></div><div class="panel"><div class="ptitle">Riepilogo per mese</div><div class="tw"><table class="atable" style="min-width:480px"><thead><tr><th>Mese</th><th>Bolle</th><th>Articoli</th><th>Totale</th><th>Δ prec.</th><th>% anno</th></tr></thead><tbody id="a-tbody"></tbody><tfoot id="a-tfoot"></tfoot></table></div></div><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:.9rem"><div class="panel" style="margin:0"><div class="ptitle">Fornitori - anno</div><div id="a-fbars"></div></div><div class="panel" style="margin:0"><div class="ptitle">Categorie - anno</div><div id="a-cbars"></div></div></div></div>
 </div>
+
 <div id="v-pivot" style="display:none">
   <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.65rem;margin-bottom:1.25rem"><div style="font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-weight:300;color:var(--gold)">Pivot Acquisti</div><div class="brow"><select id="pv-year" onchange="renderPivot()" style="width:auto;font-size:.62rem;padding:.4rem .6rem"></select><select id="pv-rows" onchange="renderPivot()" style="width:auto;font-size:.62rem;padding:.4rem .6rem"><option value="fornitore">Righe: Fornitore</option><option value="cat">Righe: Categoria</option></select><select id="pv-cols" onchange="renderPivot()" style="width:auto;font-size:.62rem;padding:.4rem .6rem"><option value="month">Colonne: Mese</option><option value="fornitore">Colonne: Fornitore</option><option value="cat">Colonne: Categoria</option></select><button class="btn btn-o btn-sm" onclick="exportPivot()">⬇ Excel</button></div></div>
   <div id="pv-empty" class="empty" style="display:none"><span class="empty-ico">🔲</span><div class="empty-t">Nessun dato</div></div>
   <div id="pv-body"><div class="panel"><div class="ptitle" id="pv-t">Valori €</div><div class="pvw" id="pv-tbl"></div></div><div class="panel"><div class="ptitle">Incidenza %</div><div class="pvw" id="pv-pct"></div></div></div>
 </div>
+
 <div id="v-nuova" style="display:none">
   <div style="font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-weight:300;color:var(--gold);margin-bottom:1.25rem">Carica Bolla</div>
   <div class="steps"><div class="step on" id="st1">① Acquisisci</div><div class="step" id="st2">② AI Analizza</div><div class="step" id="st3">③ Verifica</div><div class="step" id="st4">④ Salvata ✓</div></div>
-  <div id="step1"><div class="panel"><div class="ptitle">📄 Carica documento bolla</div><div class="uzone" id="uzone"><span class="uico" id="uico">🪪</span><div class="utxt" id="utxt">Foto o immagine della bolla</div><div class="usub" style="margin-bottom:.9rem">JPG · PNG · PDF — l'AI legge tutto</div><div class="ubtns"><label class="ubtn pri" style="cursor:pointer;position:relative;overflow:hidden">📁 Sfoglia File<input type="file" accept="image/*,application/pdf" multiple style="position:absolute;top:0;left:0;width:100%;height:100%;opacity:0;cursor:pointer" onchange="doFiles(this.files);this.value=''"></label><label class="ubtn" style="cursor:pointer;position:relative;overflow:hidden">📷 Fotocamera<input type="file" accept="image/*" capture="environment" style="position:absolute;top:0;left:0;width:100%;height:100%;opacity:0;cursor:pointer" onchange="doFiles(this.files);this.value=''"></label></div></div><div class="pgrid" id="pgrid"></div></div><div id="acq-bnr" class="bnr" style="display:none"></div><div class="aibox" id="aibox"><div class="spin"></div><div style="font-size:.68rem;color:var(--cream2)"><strong style="color:var(--gold)">Analisi AI…</strong> <span id="ai-msg">Lettura documento</span></div></div><div class="brow"><button class="btn btn-p" id="ai-btn" disabled onclick="doAI()">🔍 Analizza con AI</button><button class="btn btn-o btn-sm" onclick="resetAll()">✕ Annulla</button></div></div>
-  <div id="step3" style="display:none"><div class="panel"><div class="ptitle">Dati estratti dall'AI<span style="font-size:.55rem;background:rgba(201,168,76,.15);color:var(--gold);padding:3px 8px;border-radius:3px;margin-left:auto">✦ Claude AI</span></div><div class="doc-grid" id="doc-info"></div><div id="ai-note"></div><div id="ai-anom"></div></div><div class="panel"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:.65rem"><div class="ptitle" style="margin:0;border:none;padding:0">Prodotti identificati</div><div style="display:flex;align-items:center;gap:.75rem"><span id="v-tot" style="font-family:'Cormorant Garamond',serif;font-size:1.1rem;color:var(--gold)"></span><button class="btn btn-o btn-sm" onclick="addRigaVuota()">+ Aggiungi riga</button></div></div><div class="tw"><table class="rtable" style="min-width:700px"><thead><tr><th style="min-width:190px">Articolo</th><th style="min-width:135px">Categoria</th><th style="width:65px">Qtà</th><th style="width:50px">UM</th><th style="width:82px">Prezzo €/UM</th><th style="width:78px">Valore €</th><th style="width:90px">Note AI</th><th style="width:38px"></th></tr></thead><tbody id="v-tbody"></tbody></table></div></div><div class="brow"><button class="btn btn-p" onclick="confirmSave()">✓ Conferma e salva</button><button class="btn btn-o btn-sm" onclick="backTo1()">← Riprova</button><button class="btn btn-d btn-sm" onclick="resetAll()">Annulla</button></div></div>
-  <div id="step4" style="display:none"><div class="panel"><div class="bnr bnr-ok on" id="ok-msg" style="margin-bottom:1rem;font-size:.75rem"></div><div id="ok-sum"></div></div><div class="brow"><button class="btn btn-p" onclick="goV('dash')">📊 Dashboard</button><button class="btn btn-o" onclick="resetAll()">📷 Carica un'altra bolla</button></div></div>
+  <div id="step1">
+    <div class="panel"><div class="ptitle">📄 Carica documento bolla</div>
+      <div class="uzone" id="uzone">
+        <span class="uico" id="uico">🪪</span>
+        <div class="utxt" id="utxt">Foto o immagine della bolla</div>
+        <div class="usub" style="margin-bottom:.9rem">JPG · PNG · PDF — l'AI legge tutto</div>
+        <div class="ubtns">
+          <label class="ubtn pri" style="cursor:pointer;position:relative;overflow:hidden">📁 Sfoglia File<input type="file" accept="image/*,application/pdf" multiple style="position:absolute;top:0;left:0;width:100%;height:100%;opacity:0;cursor:pointer" onchange="doFiles(this.files);this.value=''"></label>
+          <label class="ubtn" style="cursor:pointer;position:relative;overflow:hidden">📷 Fotocamera<input type="file" accept="image/*" capture="environment" style="position:absolute;top:0;left:0;width:100%;height:100%;opacity:0;cursor:pointer" onchange="doFiles(this.files);this.value=''"></label>
+        </div>
+      </div>
+      <div class="pgrid" id="pgrid"></div>
+    </div>
+    <div class="aibox" id="aibox"><div class="spin"></div><div style="font-size:.68rem;color:var(--cream2)"><strong style="color:var(--gold)">Analisi AI…</strong> <span id="ai-msg">Lettura documento</span></div></div>
+    <div class="brow"><button class="btn btn-p" id="ai-btn" disabled onclick="doAI()">🔍 Analizza con AI</button><button class="btn btn-o btn-sm" onclick="resetAll()">✕ Annulla</button></div>
+  </div>
+  <div id="step3" style="display:none">
+    <div class="panel"><div class="ptitle">Dati estratti dall'AI<span style="font-size:.55rem;background:rgba(201,168,76,.15);color:var(--gold);padding:3px 8px;border-radius:3px;margin-left:auto">✦ Claude AI</span></div>
+      <div class="doc-grid" id="doc-info"></div><div id="ai-note"></div><div id="ai-anom"></div>
+    </div>
+    <div class="panel">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:.65rem">
+        <div class="ptitle" style="margin:0;border:none;padding:0">Prodotti identificati</div>
+        <div style="display:flex;align-items:center;gap:.75rem"><span id="v-tot" style="font-family:'Cormorant Garamond',serif;font-size:1.1rem;color:var(--gold)"></span><button class="btn btn-o btn-sm" onclick="addRigaVuota()">+ Aggiungi riga</button></div>
+      </div>
+      <div class="tw"><table class="rtable" style="min-width:700px"><thead><tr><th style="min-width:190px">Articolo</th><th style="min-width:135px">Categoria</th><th style="width:65px">Qtà</th><th style="width:50px">UM</th><th style="width:82px">Prezzo €/UM</th><th style="width:78px">Valore €</th><th style="width:90px">Note AI</th><th style="width:38px"></th></tr></thead><tbody id="v-tbody"></tbody></table></div>
+    </div>
+    <div class="brow"><button class="btn btn-p" onclick="confirmSave()">✓ Conferma e salva</button><button class="btn btn-o btn-sm" onclick="backTo1()">← Riprova</button><button class="btn btn-d btn-sm" onclick="resetAll()">Annulla</button></div>
+  </div>
+  <div id="step4" style="display:none">
+    <div class="panel"><div class="bnr bnr-ok on" id="ok-msg" style="margin-bottom:1rem;font-size:.75rem"></div><div id="ok-sum"></div></div>
+    <div class="brow"><button class="btn btn-p" onclick="goV('dash')">📊 Dashboard</button><button class="btn btn-o" onclick="resetAll()">📷 Carica un'altra bolla</button></div>
+  </div>
 </div>
+
 <div id="v-bolle" style="display:none">
   <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.65rem;margin-bottom:1.25rem"><div style="font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-weight:300;color:var(--gold)">Archivio Bolle</div><div class="brow"><select id="b-year" onchange="renderBolle()" style="width:auto;font-size:.62rem;padding:.4rem .6rem"></select><select id="b-month" onchange="renderBolle()" style="width:auto;font-size:.62rem;padding:.4rem .6rem"><option value="">Tutti i mesi</option></select><select id="b-for" onchange="renderBolle()" style="width:auto;font-size:.62rem;padding:.4rem .6rem"><option value="">Tutti i fornitori</option></select><button class="btn btn-o btn-sm" onclick="exportBolle()">⬇ Excel</button></div></div>
   <div id="b-empty" class="empty" style="display:none"><span class="empty-ico">📋</span><div class="empty-t">Nessuna bolla</div></div>
-  <div class="panel" id="b-panel" style="display:none"><div style="display:flex;justify-content:space-between;margin-bottom:.85rem;flex-wrap:wrap;gap:.5rem"><div id="b-cnt" style="font-size:.62rem;color:var(--muted)"></div><div id="b-tot"></div></div><div class="tw"><table class="atable" style="min-width:650px"><thead><tr><th>N. Documento</th><th>Data</th><th>Fornitore</th><th>Articoli</th><th>Totale</th><th>Fonte</th><th></th></tr></thead><tbody id="b-tbody"></tbody></table></div></div>
+  <div class="panel" id="b-panel" style="display:none"><div style="display:flex;justify-content:space-between;margin-bottom:.85rem;flex-wrap:wrap;gap:.5rem"><div id="b-cnt" style="font-size:.62rem;color:var(--muted)"></div><div id="b-tot"></div></div><div class="tw"><table class="atable" style="min-width:660px"><thead><tr><th>N. Documento</th><th>Data</th><th>Fornitore</th><th>Articoli</th><th>Totale</th><th>Fonte</th><th></th></tr></thead><tbody id="b-tbody"></tbody></table></div></div>
 </div>
+
 <div id="v-giac" style="display:none">
   <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.65rem;margin-bottom:1.25rem"><div style="font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-weight:300;color:var(--gold)">Giacenze Valorizzate</div><div class="brow"><select id="g-year" onchange="renderGiac()" style="width:auto;font-size:.62rem;padding:.4rem .6rem"></select><select id="g-month" onchange="renderGiac()" style="width:auto;font-size:.62rem;padding:.4rem .6rem"><option value="">Tutti i mesi</option></select><select id="g-cat" onchange="renderGiac()" style="width:auto;font-size:.62rem;padding:.4rem .6rem"><option value="">Tutte le categorie</option></select><select id="g-ord" onchange="renderGiac()" style="width:auto;font-size:.62rem;padding:.4rem .6rem"><option value="val">Per valore ↓</option><option value="mat">Alfabetico</option><option value="cat">Per categoria</option></select><button class="btn btn-o btn-sm" onclick="exportGiac()">⬇ Excel</button></div></div>
   <div id="g-empty" class="empty" style="display:none"><span class="empty-ico">📦</span><div class="empty-t">Nessun articolo</div></div>
   <div class="panel" id="g-panel" style="display:none"><div id="g-sum" style="font-size:.62rem;color:var(--muted);margin-bottom:.85rem"></div><div class="tw"><table class="atable" style="min-width:620px"><thead><tr><th>Articolo</th><th>Categoria</th><th>Qtà tot.</th><th>UM</th><th>Prezzo medio</th><th>Valore</th><th>%</th><th>Fornitore</th></tr></thead><tbody id="g-tbody"></tbody><tfoot id="g-tfoot"></tfoot></table></div></div>
 </div>
+
 <div id="v-anal" style="display:none">
   <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.65rem;margin-bottom:1.25rem"><div style="font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-weight:300;color:var(--gold)">Analisi Incidenze</div><div class="brow"><select id="an-year" onchange="renderAnal()" style="width:auto;font-size:.62rem;padding:.4rem .6rem"></select><select id="an-month" onchange="renderAnal()" style="width:auto;font-size:.62rem;padding:.4rem .6rem"><option value="">Tutti i mesi</option></select><button class="btn btn-o btn-sm" onclick="exportAnal()">⬇ Excel completo</button></div></div>
   <div id="an-empty" class="empty" style="display:none"><span class="empty-ico">📈</span><div class="empty-t">Nessun dato</div></div>
@@ -288,14 +427,14 @@ function buildHTML(){
 }
 
 // ═══════════════════════════════════
-// NAVIGAZIONE
+// NAV
 // ═══════════════════════════════════
 const VIEWS=['dash','ann','pivot','nuova','bolle','giac','anal'];
-function goV(id){
+window.goV = function(id){
   VIEWS.forEach(v=>{
     const el=document.getElementById('v-'+v);if(el)el.style.display=v===id?'':'none';
-    const nb=document.getElementById('nb-'+v);if(nb)nb.classList.toggle('on',v===id);
-    const mt=document.getElementById('mt-'+v);if(mt)mt.classList.toggle('on',v===id);
+    document.getElementById('nb-'+v)?.classList.toggle('on',v===id);
+    document.getElementById('mt-'+v)?.classList.toggle('on',v===id);
   });
   if(id==='dash'){fillY('d-year',renderDash);fillM('d-month',renderDash,document.getElementById('d-year')?.value);renderDash()}
   if(id==='ann'){fillY('a-year',renderAnn);renderAnn()}
@@ -309,23 +448,23 @@ function goV(id){
 // ═══════════════════════════════════
 // DASHBOARD
 // ═══════════════════════════════════
-function setDM(m){dashMode=m;document.getElementById('d-month').style.display=m==='m'?'':'none';renderDash()}
+window.setDM = function(m){dashMode=m;document.getElementById('d-month').style.display=m==='m'?'':'none';renderDash()}
 function renderDash(){
   const year=document.getElementById('d-year')?.value||'';
   const month=dashMode==='m'?(document.getElementById('d-month')?.value||''):'';
   const R=fR(year,month),B=fB(year,month,''),T=sumV(R,'val');
-  const empty=!BOLLE.length;
+  const empty=!window.BOLLE.length;
   document.getElementById('d-empty').style.display=empty?'':'none';
   document.getElementById('d-body').style.display=empty?'none':'';
   if(empty)return;
   document.getElementById('d-met').innerHTML=`<div class="met"><div class="ml">Totale acquisti</div><div class="mv">€ ${fmt(T)}</div><div class="ms">${B.length} bolle DDT</div></div><div class="met"><div class="ml">Fornitori attivi</div><div class="mv">${new Set(B.map(b=>b.fornitore)).size}</div><div class="ms">nel periodo</div></div><div class="met"><div class="ml">Articoli distinti</div><div class="mv">${new Set(R.map(r=>r.mat)).size}</div></div><div class="met"><div class="ml">Media per bolla</div><div class="mv">€ ${fmt(B.length?T/B.length:0)}</div></div>`;
   const fT=Object.entries(grp(R,'fornitore')).map(([f,rr])=>({f,v:sumV(rr,'val')})).sort((a,b)=>b.v-a.v);
   const mxF=fT[0]?.v||1;
-  document.getElementById('d-fbars').innerHTML=fT.map(({f,v})=>{const c=fCol(f);return`<div class="br-row"><span class="br-lbl" title="${f}">${f.split(' ')[0]}</span><div class="br-trk"><div class="br-fil" style="width:${Math.round(v/mxF*100)}%;background:${c}"></div></div><span class="br-val">€ ${fmt(v)}</span></div>`}).join('')||'<div style="color:var(--muted);font-size:.65rem">—</div>';
+  document.getElementById('d-fbars').innerHTML=fT.map(({f,v})=>`<div class="br-row"><span class="br-lbl" title="${f}">${f.split(' ')[0]}</span><div class="br-trk"><div class="br-fil" style="width:${Math.round(v/mxF*100)}%;background:${fCol(f)}"></div></div><span class="br-val">€ ${fmt(v)}</span></div>`).join('')||'<div style="color:var(--muted)">—</div>';
   const cT=Object.entries(grp(R,'cat')).map(([c,rr])=>({c,v:sumV(rr,'val')})).sort((a,b)=>b.v-a.v).slice(0,10);
   const mxC=cT[0]?.v||1;
-  document.getElementById('d-cbars').innerHTML=cT.map(({c,v})=>{const col=cCol(c);return`<div class="br-row"><span class="br-lbl">${c}</span><div class="br-trk"><div class="br-fil" style="width:${Math.round(v/mxC*100)}%;background:${col}"></div></div><span class="br-val">€ ${fmt(v)}</span></div>`}).join('');
-  document.getElementById('d-recent').innerHTML=B.slice().sort((a,b)=>b.data.localeCompare(a.data)).slice(0,8).map(b=>{const c=fCol(b.fornitore);return`<div style="display:flex;justify-content:space-between;align-items:center;padding:.65rem 0;border-bottom:1px solid var(--brd)"><span><strong style="color:var(--cream)">${b.num}</strong> <span style="color:var(--muted);font-size:.6rem">${b.data}</span><br><span style="color:${c}">${b.fornitore}</span></span><span class="price">€ ${fmt(b.totale)}</span></div>`}).join('')||'<div style="color:var(--muted);padding:.5rem 0">Nessuna bolla nel periodo.</div>';
+  document.getElementById('d-cbars').innerHTML=cT.map(({c,v})=>`<div class="br-row"><span class="br-lbl">${c}</span><div class="br-trk"><div class="br-fil" style="width:${Math.round(v/mxC*100)}%;background:${cCol(c)}"></div></div><span class="br-val">€ ${fmt(v)}</span></div>`).join('');
+  document.getElementById('d-recent').innerHTML=B.slice().sort((a,b)=>b.data.localeCompare(a.data)).slice(0,8).map(b=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:.65rem 0;border-bottom:1px solid var(--brd)"><span><strong style="color:var(--cream)">${b.num}</strong> <span style="color:var(--muted);font-size:.6rem">${b.data}</span><br><span style="color:${fCol(b.fornitore)}">${b.fornitore}</span></span><span class="price">€ ${fmt(b.totale)}</span></div>`).join('')||'<div style="color:var(--muted);padding:.5rem 0">Nessuna bolla nel periodo.</div>';
 }
 
 // ═══════════════════════════════════
@@ -336,54 +475,60 @@ function renderAnn(){
   const B=fB(year,'',''),R=fR(year,''),T=sumV(R,'val'),nA=new Set(R.map(r=>r.mat)).size;
   if(!B.length){document.getElementById('a-empty').style.display='';document.getElementById('a-body').style.display='none';return}
   document.getElementById('a-empty').style.display='none';document.getElementById('a-body').style.display='';
-  document.getElementById('a-met').innerHTML=`<div class="met"><div class="ml">Totale anno ${year}</div><div class="mv">€ ${fmt(T)}</div><div class="ms">${B.length} bolle</div></div><div class="met"><div class="ml">Media mensile</div><div class="mv">€ ${fmt(B.length?T/12:0)}</div></div><div class="met"><div class="ml">Articoli distinti</div><div class="mv">${nA}</div></div>`;
-  const byM=[];for(let m=1;m<=12;m++){const rm=R.filter(r=>r.month===m);byM.push({m,tot:sumV(rm,'val'),n:B.filter(b=>b.month===m).length})}
+  document.getElementById('a-met').innerHTML=`<div class="met"><div class="ml">Totale anno ${year}</div><div class="mv">€ ${fmt(T)}</div><div class="ms">${B.length} bolle</div></div><div class="met"><div class="ml">Media mensile</div><div class="mv">€ ${fmt(T/12)}</div></div><div class="met"><div class="ml">Articoli distinti</div><div class="mv">${nA}</div></div>`;
+  const byM=[];for(let m=1;m<=12;m++){const rm=R.filter(r=>r.month===m);byM.push({m,tot:sumV(rm,'val'),n:B.filter(b=>b.month===m).length,art:new Set(rm.map(r=>r.mat)).size})}
   const mxM=Math.max(...byM.map(m=>m.tot),1);
   document.getElementById('a-chart').innerHTML=`<div class="mchart">${byM.map(m=>{const h=m.tot>0?Math.max(Math.round(m.tot/mxM*100),5):0;return`<div class="mb-w"><div class="mb-v">${m.tot>0?'€'+Math.round(m.tot/1000)+'k':''}</div><div class="mb${m.n?' cur':''}" style="height:${h}%"></div><div class="mb-l">${MSH[m.m-1]}</div></div>`}).join('')}</div>`;
-  document.getElementById('a-tbody').innerHTML=byM.map(m=>`<tr><td>${MESI[m.m-1]}</td><td>${m.n||'-'}</td><td>${m.n||'-'}</td><td>${m.tot>0?'€ '+fmt(m.tot):'-'}</td><td>-</td><td>${m.tot>0?fmtP(T?m.tot/T*100:0):'-'}</td></tr>`).join('');
-  document.getElementById('a-tfoot').innerHTML=`<tr style="color:var(--gold)"><td>TOTALE</td><td>${B.length}</td><td>${nA}</td><td>€ ${fmt(T)}</td><td>-</td><td>100%</td></tr>`;
+  let prev=0;
+  document.getElementById('a-tbody').innerHTML=byM.map(m=>{
+    const d=prev>0&&m.tot>0?((m.tot-prev)/prev*100):null;
+    const dh=d!==null?`<span style="color:${d>=0?'#e57373':'#81c784'}">${d>=0?'▲':'▼'} ${Math.abs(d).toFixed(1)}%</span>`:'—';
+    const row=`<tr ${!m.n?'style="opacity:.4"':''}><td style="font-family:'Cormorant Garamond',serif">${MESI[m.m-1]}</td><td>${m.n||'—'}</td><td>${m.art||'—'}</td><td>${m.tot>0?'<span class="price">€ '+fmt(m.tot)+'</span>':'—'}</td><td>${dh}</td><td>${m.tot>0?'<span class="tag">'+fmtP(T?m.tot/T*100:0)+'</span>':'—'}</td></tr>`;
+    if(m.tot>0)prev=m.tot;return row;
+  }).join('');
+  document.getElementById('a-tfoot').innerHTML=`<tr style="color:var(--gold)"><td>TOTALE</td><td>${B.length}</td><td>${nA}</td><td><span class="price">€ ${fmt(T)}</span></td><td>—</td><td>100%</td></tr>`;
+  const fBars=Object.entries(grp(R,'fornitore')).map(([f,rr])=>({f,v:sumV(rr,'val')})).sort((a,b)=>b.v-a.v);const mxF=fBars[0]?.v||1;
+  document.getElementById('a-fbars').innerHTML=fBars.map(({f,v})=>`<div class="br-row"><span class="br-lbl" title="${f}">${f.split(' ')[0]}</span><div class="br-trk"><div class="br-fil" style="width:${Math.round(v/mxF*100)}%;background:${fCol(f)}"></div></div><span class="br-val">€ ${fmt(v)}</span></div>`).join('');
+  const cBars=Object.entries(grp(R,'cat')).map(([c,rr])=>({c,v:sumV(rr,'val')})).sort((a,b)=>b.v-a.v).slice(0,10);const mxC=cBars[0]?.v||1;
+  document.getElementById('a-cbars').innerHTML=cBars.map(({c,v})=>`<div class="br-row"><span class="br-lbl">${c}</span><div class="br-trk"><div class="br-fil" style="width:${Math.round(v/mxC*100)}%;background:${cCol(c)}"></div></div><span class="br-val">€ ${fmt(v)}</span></div>`).join('');
 }
 
 // ═══════════════════════════════════
 // PIVOT
 // ═══════════════════════════════════
 function renderPivot(){
-  const year=document.getElementById('pv-year')?.value||'';
-  const rk=document.getElementById('pv-rows')?.value||'fornitore';
-  const ck=document.getElementById('pv-cols')?.value||'month';
+  const year=document.getElementById('pv-year')?.value||'';const rk=document.getElementById('pv-rows')?.value||'fornitore';const ck=document.getElementById('pv-cols')?.value||'month';
   const R=fR(year,'');
   if(!R.length){document.getElementById('pv-empty').style.display='';document.getElementById('pv-body').style.display='none';return}
   document.getElementById('pv-empty').style.display='none';document.getElementById('pv-body').style.display='';
   const rV=rk==='fornitore'?allF():allC();
-  let cV=ck==='month'?[...new Set(R.map(r=>r.month))].sort((a,b)=>a-b).map(m=>({k:m,l:MSH[m-1]})):ck==='fornitore'?allF().map(f=>({k:f,l:f.split(' ')[0]})):allC().map(c=>({k:c,l:c}));
+  const cV=ck==='month'?[...new Set(R.map(r=>r.month))].sort((a,b)=>a-b).map(m=>({k:m,l:MSH[m-1]})):ck==='fornitore'?allF().map(f=>({k:f,l:f.split(' ')[0]})):allC().map(c=>({k:c,l:c}));
   const mx={},cT={},tot={v:0};rV.forEach(rv=>{mx[rv]={_t:0};cV.forEach(cv=>mx[rv][cv.k]=0)});cV.forEach(cv=>cT[cv.k]=0);
   R.forEach(r=>{const rv=rk==='fornitore'?r.fornitore:r.cat;const ck2=ck==='month'?r.month:ck==='fornitore'?r.fornitore:r.cat;if(mx[rv]&&cT[ck2]!==undefined){mx[rv][ck2]+=r.val;mx[rv]._t+=r.val;cT[ck2]+=r.val;tot.v+=r.val}});
-  function build(pct){let h=`<table class="pvt"><thead><tr><th>${rk==='fornitore'?'Fornitore':'Categoria'}</th>`;cV.forEach(cv=>h+=`<th>${cv.l}</th>`);h+='<th class="tc">TOTALE</th></tr></thead><tbody>';
-    rV.forEach(rv=>{h+=`<tr><td class="rh">${rv}</td>`;cV.forEach(cv=>{const v=mx[rv][cv.k]||0;h+=`<td>${pct?(tot.v?fmtP(v/tot.v*100):'-'):(v?'€ '+fmt(v):'-')}</td>`});h+=`<td class="tc">${pct?(tot.v?fmtP(mx[rv]._t/tot.v*100):'-'):'€ '+fmt(mx[rv]._t)}</td></tr>`});
-    h+='<tr class="tr"><td class="rh">TOTALE</td>';cV.forEach(cv=>{const v=cT[cv.k]||0;h+=`<td>${pct?(tot.v?fmtP(v/tot.v*100):'-'):'€ '+fmt(v)}</td>`});h+=`<td>${pct?'100%':'€ '+fmt(tot.v)}</td></tr></tbody></table>`;return h}
+  function build(pct){let h=`<table class="pvt"><thead><tr><th>${rk==='fornitore'?'Fornitore':'Categoria'}</th>`;cV.forEach(cv=>h+=`<th>${cv.l}</th>`);h+='<th class="tc">TOTALE</th></tr></thead><tbody>';rV.forEach(rv=>{h+=`<tr><td class="rh">${rv}</td>`;cV.forEach(cv=>{const v=mx[rv][cv.k]||0;h+=`<td>${pct?(tot.v?fmtP(v/tot.v*100):'-'):(v?'€ '+fmt(v):'-')}</td>`});h+=`<td class="tc">${pct?(tot.v?fmtP(mx[rv]._t/tot.v*100):'-'):'€ '+fmt(mx[rv]._t)}</td></tr>`});h+='<tr class="tr"><td class="rh">TOTALE</td>';cV.forEach(cv=>{const v=cT[cv.k]||0;h+=`<td>${pct?(tot.v?fmtP(v/tot.v*100):'-'):'€ '+fmt(v)}</td>`});h+=`<td>${pct?'100%':'€ '+fmt(tot.v)}</td></tr></tbody></table>`;return h}
   document.getElementById('pv-t').textContent=`Valori € - ${year||'tutti'}`;
-  document.getElementById('pv-tbl').innerHTML=build(false);
-  document.getElementById('pv-pct').innerHTML=build(true);
+  document.getElementById('pv-tbl').innerHTML=build(false);document.getElementById('pv-pct').innerHTML=build(true);
 }
 
 // ═══════════════════════════════════
-// CARICA BOLLA
+// CARICA BOLLA — AI INVARIATA
 // ═══════════════════════════════════
 function initNuova(){stepUI(1)}
 function stepUI(n){[1,3,4].forEach(i=>{const el=document.getElementById('step'+i);if(el)el.style.display=i===n?'':'none'});[1,2,3,4].forEach(i=>{const s=document.getElementById('st'+i);if(!s)return;s.classList.remove('on','done');if(i<n)s.classList.add('done');else if(i===n)s.classList.add('on')})}
-function doFiles(files){Array.from(files).forEach(f=>{if(imgs.length>=4)return;const r=new FileReader();r.onload=ev=>{imgs.push({file:f,url:ev.target.result,base64:ev.target.result.split(',')[1],mime:f.type||'image/jpeg'});renderPreviews();checkReady()};r.readAsDataURL(f)})}
+window.doFiles = function(files){Array.from(files).forEach(f=>{if(imgs.length>=4)return;const r=new FileReader();r.onload=ev=>{imgs.push({file:f,url:ev.target.result,base64:ev.target.result.split(',')[1],mime:f.type||'image/jpeg'});renderPreviews();checkReady()};r.readAsDataURL(f)})}
 function renderPreviews(){const pg=document.getElementById('pgrid');if(!pg)return;pg.innerHTML='';imgs.forEach((img,i)=>{const d=document.createElement('div');d.className='pitem';if(img.mime.startsWith('image/')){d.innerHTML=`<img src="${img.url}"><button class="prmbtn" onclick="rmImg(${i})">×</button><div class="pbadge">Doc ${i+1}</div>`}else{d.innerHTML=`<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:.6rem;color:var(--gold)">📄 PDF</div><button class="prmbtn" onclick="rmImg(${i})">×</button>`}pg.appendChild(d)});const uz=document.getElementById('uzone');if(imgs.length>0){uz.classList.add('has');document.getElementById('uico').textContent='✅';document.getElementById('utxt').textContent=imgs.length+' file pronto'}else{uz.classList.remove('has');document.getElementById('uico').textContent='🪪';document.getElementById('utxt').textContent='Foto o immagine della bolla'}}
-function rmImg(i){imgs.splice(i,1);renderPreviews();checkReady()}
-function checkReady(){const ready=imgs.length>0;document.getElementById('ai-btn').disabled=!ready}
+window.rmImg = function(i){imgs.splice(i,1);renderPreviews();checkReady()}
+function checkReady(){document.getElementById('ai-btn').disabled=imgs.length===0}
 function catOpts(sel){return CATS.map(c=>`<option ${c===sel?'selected':''}>${c}</option>`).join('')}
 function renderVTable(){const tot=sumV(aiRighe,'val');document.getElementById('v-tot').textContent='€ '+fmt(tot)+' · '+aiRighe.length+' articoli';document.getElementById('v-tbody').innerHTML=aiRighe.map((r,i)=>`<tr><td><input value="${r.mat}" onchange="upd(${i},'mat',this.value)" style="min-width:170px"></td><td><select onchange="upd(${i},'cat',this.value)">${catOpts(r.cat)}</select></td><td><input type="number" value="${r.qty}" onchange="upd(${i},'qty',+this.value)" style="width:60px"></td><td><input value="${r.unit}" onchange="upd(${i},'unit',this.value)" style="width:44px"></td><td><input type="number" value="${r.price}" onchange="upd(${i},'price',+this.value)" style="width:75px"></td><td style="color:var(--gold);font-weight:500">€ ${fmt(r.val)}</td><td style="font-size:.6rem;color:var(--muted)">${r.note||''}</td><td><button class="tbtn d" onclick="delR(${i})">✕</button></td></tr>`).join('')}
-function upd(i,k,v){aiRighe[i][k]=v;if(k==='qty'||k==='price')aiRighe[i].val=parseFloat((aiRighe[i].qty*aiRighe[i].price).toFixed(4));renderVTable()}
-function delR(i){aiRighe.splice(i,1);renderVTable()}
-function addRigaVuota(){aiRighe.push({mat:'',cat:'Altro',qty:1,unit:'PZ',price:0,val:0,note:''});renderVTable()}
-function backTo1(){stepUI(1)}
-function resetAll(){aiRighe=[];aiDoc={};imgs=[];document.getElementById('pgrid').innerHTML='';document.getElementById('uzone').classList.remove('has');document.getElementById('uico').textContent='🪪';document.getElementById('utxt').textContent='Foto o immagine della bolla';document.getElementById('ai-btn').disabled=true;stepUI(1)}
+window.upd = function(i,k,v){aiRighe[i][k]=v;if(k==='qty'||k==='price')aiRighe[i].val=parseFloat((aiRighe[i].qty*aiRighe[i].price).toFixed(4));renderVTable()}
+window.delR = function(i){aiRighe.splice(i,1);renderVTable()}
+window.addRigaVuota = function(){aiRighe.push({mat:'',cat:'Altro',qty:1,unit:'PZ',price:0,val:0,note:''});renderVTable()}
+window.backTo1 = function(){stepUI(1)}
+window.resetAll = function(){aiRighe=[];aiDoc={};imgs=[];document.getElementById('pgrid').innerHTML='';const uz=document.getElementById('uzone');if(uz)uz.classList.remove('has');const ui=document.getElementById('uico');if(ui)ui.textContent='🪪';const ut=document.getElementById('utxt');if(ut)ut.textContent='Foto o immagine della bolla';const ab=document.getElementById('ai-btn');if(ab)ab.disabled=true;stepUI(1)}
 
-async function doAI(){
+// ══ AI — NON MODIFICATA ══
+window.doAI = async function(){
   document.getElementById('ai-btn').disabled=true;document.getElementById('aibox').classList.add('on');document.getElementById('ai-msg').textContent='Lettura documento…';
   const ca=[];imgs.forEach(img=>{if(img.mime==='application/pdf'){ca.push({type:'document',source:{type:'base64',media_type:'application/pdf',data:img.base64}})}else{ca.push({type:'image',source:{type:'base64',media_type:img.mime,data:img.base64}})}});
   ca.push({type:'text',text:`Analizza questo documento di trasporto/DDT e restituisci SOLO JSON valido: {"num_documento":"","data":"YYYY-MM-DD","fornitore":"","righe":[{"mat":"","cat":"","qty":0,"unit":"","price":0,"val":0,"note":""}],"totale":0,"anomalie":[],"note_generali":""}. Categorie possibili: ${CATS.join(', ')}`});
@@ -401,33 +546,117 @@ async function doAI(){
   }catch(err){document.getElementById('aibox').classList.remove('on');document.getElementById('ai-btn').disabled=false;alert('Errore AI: '+err.message)}
 }
 
-function confirmSave(){
+// ═══════════════════════════════════
+// SALVA BOLLA — con Firestore
+// ═══════════════════════════════════
+window.confirmSave = async function(){
   const num=document.getElementById('v-num')?.value.trim();
   const dataStr=document.getElementById('v-data')?.value;
   const fornitore=document.getElementById('v-for')?.value.trim();
   if(!num||!dataStr||!fornitore||!aiRighe.length){alert('Compila tutti i campi');return}
-  const d=new Date(dataStr);const totale=parseFloat(sumV(aiRighe,'val').toFixed(2));
+  const d=new Date(dataStr);
+  const totale=parseFloat(sumV(aiRighe,'val').toFixed(2));
   const bolla={num,data:dataStr,fornitore,year:d.getFullYear(),month:d.getMonth()+1,totale,fonte:'AI',righe:aiRighe.map(r=>({mat:r.mat,cat:r.cat,qty:r.qty,unit:r.unit,price:r.price,val:r.val}))};
-  BOLLE.push(bolla);
+  // Salva su Firestore
+  const firestoreId = await saveToFirestore(bolla);
+  if(firestoreId) bolla._firestoreId = firestoreId;
+  window.BOLLE.push(bolla);
   saveToLocalStorage();
+  setStatus('ok', window.BOLLE.length);
   stepUI(4);
-  document.getElementById('ok-msg').textContent='✅ Bolla '+num+' - '+fornitore+' - € '+fmt(totale)+' salvata!';
+  document.getElementById('ok-msg').textContent='✅ Bolla '+num+' — '+fornitore+' — € '+fmt(totale)+' salvata'+(firestoreId?' su Cloud ☁️':' in locale');
   aiRighe=[];
 }
 
 // ═══════════════════════════════════
-// ARCHIVIO BOLLE
+// ARCHIVIO BOLLE + MODIFICA + ELIMINA
 // ═══════════════════════════════════
 function renderBolle(){
   fillY('b-year',renderBolle,true);const year=document.getElementById('b-year')?.value||'';fillM('b-month',renderBolle,year,true);fillF('b-for');
   const month=document.getElementById('b-month')?.value;const for_=document.getElementById('b-for')?.value||'';
   const B=fB(year,month,for_).sort((a,b)=>b.data.localeCompare(a.data));
-  if(!BOLLE.length){document.getElementById('b-empty').style.display='';document.getElementById('b-panel').style.display='none';return}
+  if(!window.BOLLE.length){document.getElementById('b-empty').style.display='';document.getElementById('b-panel').style.display='none';return}
   document.getElementById('b-empty').style.display='none';document.getElementById('b-panel').style.display='';
-  document.getElementById('b-cnt').textContent=B.length+' bolle';document.getElementById('b-tot').innerHTML='<span class="price">€ '+fmt(sumV(B,'totale'))+'</span>';
-  document.getElementById('b-tbody').innerHTML=B.map(b=>{const idx=BOLLE.indexOf(b);return`<tr><td class="tdc">${b.num}</td><td class="tdd">${b.data}</td><td style="color:${fCol(b.fornitore)}">${b.fornitore}</td><td>${b.righe.length} art.</td><td><span class="price">€ ${fmt(b.totale)}</span></td><td><span class="tag">${b.fonte}</span></td><td class="tdact"><button class="tbtn d" onclick="delB(${idx})">🗑</button></td></tr>`}).join('')||'<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:2rem">Nessuna bolla per questo filtro.</td></tr>';
+  document.getElementById('b-cnt').textContent=B.length+' bolle';
+  document.getElementById('b-tot').innerHTML='<span class="price">€ '+fmt(sumV(B,'totale'))+'</span>';
+  document.getElementById('b-tbody').innerHTML=B.map(b=>{
+    const idx=window.BOLLE.indexOf(b);
+    return`<tr>
+      <td class="tdc">${b.num}</td>
+      <td class="tdd">${b.data}</td>
+      <td style="color:${fCol(b.fornitore)}">${b.fornitore}</td>
+      <td>${b.righe.length} art.</td>
+      <td><span class="price">€ ${fmt(b.totale)}</span></td>
+      <td><span class="tag">${b.fonte}</span></td>
+      <td class="tdact">
+        <button class="tbtn" onclick="editB(${idx})" title="Modifica">✏️</button>
+        <button class="tbtn d" onclick="delB(${idx})" title="Elimina">🗑</button>
+      </td>
+    </tr>`;
+  }).join('')||'<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:2rem">Nessuna bolla per questo filtro.</td></tr>';
 }
-function delB(idx){if(!confirm('Eliminare questa bolla?'))return;BOLLE.splice(idx,1);saveToLocalStorage();renderBolle()}
+
+window.delB = async function(idx){
+  const b=window.BOLLE[idx];if(!b)return;
+  if(!confirm('Eliminare la bolla '+b.num+'?'))return;
+  await deleteFromFirestore(b._firestoreId);
+  window.BOLLE.splice(idx,1);
+  saveToLocalStorage();
+  setStatus('ok', window.BOLLE.length);
+  renderBolle();
+}
+
+// ── MODIFICA BOLLA ──
+window.editB = function(idx){
+  const b=window.BOLLE[idx];if(!b)return;
+  editIdx=idx;
+  editRighe=b.righe.map(r=>({...r}));
+  document.getElementById('e-num').value=b.num;
+  document.getElementById('e-data').value=b.data;
+  document.getElementById('e-for').value=b.fornitore;
+  renderEditTable();
+  document.getElementById('edit-modal').classList.add('on');
+}
+
+function renderEditTable(){
+  const tot=editRighe.reduce((s,r)=>s+(parseFloat(r.val)||0),0);
+  document.getElementById('e-tot').textContent='€ '+fmt(tot);
+  document.getElementById('e-tbody').innerHTML=editRighe.map((r,i)=>`<tr>
+    <td><input value="${r.mat||''}" onchange="editUpd(${i},'mat',this.value)" style="min-width:160px"></td>
+    <td><select onchange="editUpd(${i},'cat',this.value)">${CATS.map(c=>`<option ${c===r.cat?'selected':''}>${c}</option>`).join('')}</select></td>
+    <td><input type="number" value="${r.qty||0}" min="0" step="0.001" onchange="editUpd(${i},'qty',+this.value)" style="width:56px"></td>
+    <td><input value="${r.unit||''}" onchange="editUpd(${i},'unit',this.value)" style="width:44px"></td>
+    <td><input type="number" value="${r.price||0}" min="0" step="0.001" onchange="editUpd(${i},'price',+this.value)" style="width:72px"></td>
+    <td style="color:var(--gold);font-weight:500;white-space:nowrap">€ ${fmt(r.val)}</td>
+    <td><button class="tbtn d" onclick="editDelR(${i})">✕</button></td>
+  </tr>`).join('');
+}
+
+window.editUpd = function(i,k,v){editRighe[i][k]=v;if(k==='qty'||k==='price')editRighe[i].val=parseFloat((editRighe[i].qty*editRighe[i].price).toFixed(4));renderEditTable()}
+window.editDelR = function(i){editRighe.splice(i,1);renderEditTable()}
+window.editAddRiga = function(){editRighe.push({mat:'',cat:'Altro',qty:1,unit:'PZ',price:0,val:0});renderEditTable()}
+
+window.saveEdit = async function(){
+  if(editIdx<0||!window.BOLLE[editIdx])return;
+  const num=document.getElementById('e-num').value.trim();
+  const dataStr=document.getElementById('e-data').value;
+  const fornitore=document.getElementById('e-for').value.trim();
+  if(!num||!dataStr||!fornitore){alert('Compila numero documento, data e fornitore.');return}
+  if(!editRighe.length){alert('Aggiungi almeno una riga prodotto.');return}
+  const d=new Date(dataStr);
+  const totale=parseFloat(editRighe.reduce((s,r)=>s+(parseFloat(r.val)||0),0).toFixed(2));
+  const firestoreId=window.BOLLE[editIdx]._firestoreId;
+  const updated={...window.BOLLE[editIdx],num,data:dataStr,fornitore,year:d.getFullYear(),month:d.getMonth()+1,totale,righe:editRighe.map(r=>({mat:r.mat,cat:r.cat,qty:r.qty,unit:r.unit,price:r.price,val:r.val}))};
+  await updateFirestore(firestoreId, updated);
+  window.BOLLE[editIdx]=updated;
+  saveToLocalStorage();
+  setStatus('ok', window.BOLLE.length);
+  closeEditModal();
+  renderBolle();
+  renderDash();
+}
+
+window.closeEditModal = function(){document.getElementById('edit-modal').classList.remove('on');editIdx=-1;editRighe=[]}
 
 // ═══════════════════════════════════
 // GIACENZE
@@ -454,16 +683,17 @@ function renderAnal(){
   const month=document.getElementById('an-month')?.value;const R=fR(year,month),T=sumV(R,'val');
   if(!R.length){document.getElementById('an-empty').style.display='';document.getElementById('an-body').style.display='none';return}
   document.getElementById('an-empty').style.display='none';document.getElementById('an-body').style.display='';
-  const fR2=Object.entries(grp(R,'fornitore')).map(([f,rr])=>({f,v:sumV(rr,'val')})).sort((a,b)=>b.v-a.v);
-  const mxF=fR2[0]?.v||1;
-  document.getElementById('an-for').innerHTML=fR2.map(({f,v})=>{return`<div style="margin-bottom:.85rem"><div style="display:flex;justify-content:space-between;font-size:.7rem;margin-bottom:.3rem"><span style="color:${fCol(f)}">${f}</span><span>€ ${fmt(v)} <span class="tag">${fmtP(T?v/T*100:0)}</span></span></div><div class="br-trk" style="height:5px"><div class="br-fil" style="width:${Math.round(v/mxF*100)}%;background:${fCol(f)}"></div></div></div>`}).join('');
+  const fR2=Object.entries(grp(R,'fornitore')).map(([f,rr])=>({f,v:sumV(rr,'val')})).sort((a,b)=>b.v-a.v);const mxF=fR2[0]?.v||1;
+  document.getElementById('an-for').innerHTML=fR2.map(({f,v})=>`<div style="margin-bottom:.85rem"><div style="display:flex;justify-content:space-between;font-size:.7rem;margin-bottom:.3rem"><span style="color:${fCol(f)}">${f}</span><span>€ ${fmt(v)} <span class="tag">${fmtP(T?v/T*100:0)}</span></span></div><div class="br-trk" style="height:5px"><div class="br-fil" style="width:${Math.round(v/mxF*100)}%;background:${fCol(f)}"></div></div></div>`).join('');
+  const cR=Object.entries(grp(R,'cat')).map(([c,rr])=>({c,v:sumV(rr,'val')})).sort((a,b)=>b.v-a.v);const mxC=cR[0]?.v||1;
+  document.getElementById('an-cat').innerHTML=cR.map(({c,v})=>`<div style="margin-bottom:.85rem"><div style="display:flex;justify-content:space-between;font-size:.7rem;margin-bottom:.3rem"><span style="color:${cCol(c)}">${c}</span><span>€ ${fmt(v)} <span class="tag">${fmtP(T?v/T*100:0)}</span></span></div><div class="br-trk" style="height:5px"><div class="br-fil" style="width:${Math.round(v/mxC*100)}%;background:${cCol(c)}"></div></div></div>`).join('');
   renderProd();
 }
 function renderProd(){
-  const fc=document.getElementById('an-fcat')?.value||'';let R=fR(document.getElementById('an-year')?.value||'',document.getElementById('an-month')?.value);if(fc)R=R.filter(r=>r.cat===fc);
-  const T=sumV(fR(document.getElementById('an-year')?.value||'',document.getElementById('an-month')?.value),'val');
-  const rows=Object.entries(grp(R,'mat')).map(([mat,rr])=>({mat,cat:rr[0].cat,for:rr[0].fornitore,v:sumV(rr,'val')})).sort((a,b)=>b.v-a.v);
-  const mxP=rows[0]?.v||1;
+  const year=document.getElementById('an-year')?.value||'';const month=document.getElementById('an-month')?.value;const fc=document.getElementById('an-fcat')?.value||'';
+  let R=fR(year,month);if(fc)R=R.filter(r=>r.cat===fc);
+  const T=sumV(fR(year,month),'val');
+  const rows=Object.entries(grp(R,'mat')).map(([mat,rr])=>({mat,cat:rr[0].cat,for:rr[0].fornitore,v:sumV(rr,'val')})).sort((a,b)=>b.v-a.v);const mxP=rows[0]?.v||1;
   document.getElementById('an-prod').innerHTML=rows.map(p=>`<tr><td>${p.mat}</td><td><span class="tag">${p.cat}</span></td><td>${p.for.split(' ')[0]}</td><td style="color:var(--gold)">€ ${fmt(p.v)}</td><td><span class="tag">${fmtP(T?p.v/T*100:0)}</span></td><td><div class="br-trk" style="height:5px"><div class="br-fil" style="width:${Math.round(p.v/mxP*100)}%;background:${cCol(p.cat)}"></div></div></td></tr>`).join('')||'<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:1.5rem">Nessun prodotto.</td></tr>';
 }
 
@@ -471,22 +701,25 @@ function renderProd(){
 // EXPORT
 // ═══════════════════════════════════
 function acw(ws,d){const c=d[0]?.length||0,w=Array(c).fill(8);d.forEach(r=>r.forEach((v,i)=>{const l=(v+'').length;if(l>w[i])w[i]=Math.min(l+2,50)}));ws['!cols']=w.map(wch=>({wch}))}
-function exportBolle(){const wb=XLSX.utils.book_new();const d=[['N.Doc','Data','Fornitore','Totale','Fonte']];BOLLE.forEach(b=>d.push([b.num,b.data,b.fornitore,b.totale,b.fonte]));const ws=XLSX.utils.aoa_to_sheet(d);acw(ws,d);XLSX.utils.book_append_sheet(wb,ws,'Bolle');XLSX.writeFile(wb,'Bolle.xlsx')}
-function exportGiac(){const d=[['Articolo','Categoria','Qtà','UM','Prezzo medio','Valore']];const R=fR('','');Object.entries(grp(R,'mat')).forEach(([mat,rr])=>d.push([mat,rr[0].cat,sumV(rr,'qty'),rr[0].unit,sumV(rr,'price')/rr.length,sumV(rr,'val')]));const wb=XLSX.utils.book_new();const ws=XLSX.utils.aoa_to_sheet(d);acw(ws,d);XLSX.utils.book_append_sheet(wb,ws,'Giacenze');XLSX.writeFile(wb,'Giacenze.xlsx')}
-function exportAnn(){const year=document.getElementById('a-year')?.value||new Date().getFullYear();const d=[['Mese','Totale']];for(let m=1;m<=12;m++)d.push([MESI[m-1],sumV(fR(year,m),'val')]);const wb=XLSX.utils.book_new();const ws=XLSX.utils.aoa_to_sheet(d);acw(ws,d);XLSX.utils.book_append_sheet(wb,ws,'Annuale');XLSX.writeFile(wb,'Annuale_'+year+'.xlsx')}
-function exportPivot(){const wb=XLSX.utils.book_new();const ws=XLSX.utils.aoa_to_sheet([['Pivot']]);XLSX.utils.book_append_sheet(wb,ws,'Pivot');XLSX.writeFile(wb,'Pivot.xlsx')}
-function exportAnal(){const wb=XLSX.utils.book_new();const ws=XLSX.utils.aoa_to_sheet([['Analisi']]);XLSX.utils.book_append_sheet(wb,ws,'Analisi');XLSX.writeFile(wb,'Analisi.xlsx')}
+window.exportBolle = function(){const wb=XLSX.utils.book_new();const d=[['N.Doc','Data','Anno','Mese','Fornitore','N.Articoli','Totale €','Fonte']];window.BOLLE.slice().sort((a,b)=>b.data.localeCompare(a.data)).forEach(b=>d.push([b.num,b.data,b.year,MESI[b.month-1],b.fornitore,b.righe.length,b.totale,b.fonte]));const ws=XLSX.utils.aoa_to_sheet(d);acw(ws,d);XLSX.utils.book_append_sheet(wb,ws,'Bolle');const d2=[['Bolla','Data','Fornitore','Articolo','Categoria','Qtà','UM','Prezzo €','Valore €']];window.BOLLE.forEach(b=>b.righe.forEach(r=>d2.push([b.num,b.data,b.fornitore,r.mat,r.cat,r.qty,r.unit,r.price,r.val])));const ws2=XLSX.utils.aoa_to_sheet(d2);acw(ws2,d2);XLSX.utils.book_append_sheet(wb,ws2,'Righe');XLSX.writeFile(wb,'Bolle_'+new Date().toISOString().slice(0,10)+'.xlsx')}
+window.exportGiac = function(){const R=fR('','');const d=[['Articolo','Categoria','Qtà','UM','Prezzo medio','Valore €']];Object.entries(grp(R,'mat')).forEach(([mat,rr])=>d.push([mat,rr[0].cat,sumV(rr,'qty').toFixed(3),rr[0].unit,(sumV(rr,'price')/rr.length).toFixed(4),sumV(rr,'val').toFixed(2)]));const wb=XLSX.utils.book_new();const ws=XLSX.utils.aoa_to_sheet(d);acw(ws,d);XLSX.utils.book_append_sheet(wb,ws,'Giacenze');XLSX.writeFile(wb,'Giacenze_'+new Date().toISOString().slice(0,10)+'.xlsx')}
+window.exportAnn = function(){const year=document.getElementById('a-year')?.value||new Date().getFullYear();const d=[['Mese','N.Bolle','Totale €','% anno']];const R=fR(year,''),T=sumV(R,'val');for(let m=1;m<=12;m++){const rm=R.filter(r=>r.month===m);d.push([MESI[m-1],fB(year,m,'').length,sumV(rm,'val').toFixed(2),(T?sumV(rm,'val')/T*100:0).toFixed(2)])}const wb=XLSX.utils.book_new();const ws=XLSX.utils.aoa_to_sheet(d);acw(ws,d);XLSX.utils.book_append_sheet(wb,ws,'Annuale');XLSX.writeFile(wb,'Anno_'+year+'.xlsx')}
+window.exportPivot = function(){alert('Export pivot: vai su Vista Annuale per export completo')}
+window.exportAnal = function(){const wb=XLSX.utils.book_new();const R=fR('',''),T=sumV(R,'val');const d1=[['Fornitore','Valore €','%']];Object.entries(grp(R,'fornitore')).map(([f,rr])=>({f,v:sumV(rr,'val')})).sort((a,b)=>b.v-a.v).forEach(({f,v})=>d1.push([f,v.toFixed(2),(T?v/T*100:0).toFixed(2)]));const ws1=XLSX.utils.aoa_to_sheet(d1);acw(ws1,d1);XLSX.utils.book_append_sheet(wb,ws1,'Fornitori');const d2=[['Categoria','Valore €','%']];Object.entries(grp(R,'cat')).map(([c,rr])=>({c,v:sumV(rr,'val')})).sort((a,b)=>b.v-a.v).forEach(({c,v})=>d2.push([c,v.toFixed(2),(T?v/T*100:0).toFixed(2)]));const ws2=XLSX.utils.aoa_to_sheet(d2);acw(ws2,d2);XLSX.utils.book_append_sheet(wb,ws2,'Categorie');XLSX.writeFile(wb,'Analisi_'+new Date().toISOString().slice(0,10)+'.xlsx')}
 
-function showModal(t,b,cb){document.getElementById('mod-t').textContent=t;document.getElementById('mod-b').innerHTML=b;document.getElementById('mod-ok').onclick=()=>{cb();closeModal()};document.getElementById('modal').classList.add('on')}
-function closeModal(){document.getElementById('modal').classList.remove('on')}
+window.showModal = function(t,b,cb){document.getElementById('mod-t').textContent=t;document.getElementById('mod-b').innerHTML=b;document.getElementById('mod-ok').onclick=()=>{cb();closeModal()};document.getElementById('modal').classList.add('on')}
+window.closeModal = function(){document.getElementById('modal').classList.remove('on')}
 
 // ═══════════════════════════════════
-// AVVIO APP
+// AVVIO
 // ═══════════════════════════════════
 buildHTML();
-updateStatus(window.BOLLE.length, true);
+setStatus('wait', 0);
+// Mostra subito i dati locali
 goV('dash');
-</script>
+// Poi carica da Firestore
+loadFromFirestore();
 
+</script>
 </body>
 </html>
