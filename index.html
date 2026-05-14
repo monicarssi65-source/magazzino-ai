@@ -527,11 +527,21 @@ window.addRigaVuota = function(){aiRighe.push({mat:'',cat:'Altro',qty:1,unit:'PZ
 window.backTo1 = function(){stepUI(1)}
 window.resetAll = function(){aiRighe=[];aiDoc={};imgs=[];document.getElementById('pgrid').innerHTML='';const uz=document.getElementById('uzone');if(uz)uz.classList.remove('has');const ui=document.getElementById('uico');if(ui)ui.textContent='🪪';const ut=document.getElementById('utxt');if(ut)ut.textContent='Foto o immagine della bolla';const ab=document.getElementById('ai-btn');if(ab)ab.disabled=true;stepUI(1)}
 
-// ══ AI — NON MODIFICATA ══
+// ══ AI ══
 window.doAI = async function(){
   document.getElementById('ai-btn').disabled=true;document.getElementById('aibox').classList.add('on');document.getElementById('ai-msg').textContent='Lettura documento…';
   const ca=[];imgs.forEach(img=>{if(img.mime==='application/pdf'){ca.push({type:'document',source:{type:'base64',media_type:'application/pdf',data:img.base64}})}else{ca.push({type:'image',source:{type:'base64',media_type:img.mime,data:img.base64}})}});
-  ca.push({type:'text',text:`Analizza questo documento di trasporto/DDT e restituisci SOLO JSON valido: {"num_documento":"","data":"YYYY-MM-DD","fornitore":"","righe":[{"mat":"","cat":"","qty":0,"unit":"","price":0,"val":0,"note":""}],"totale":0,"anomalie":[],"note_generali":""}. Categorie possibili: ${CATS.join(', ')}`});
+  ca.push({type:'text',text:`Analizza questo documento DDT/bolla di acquisto e restituisci SOLO JSON valido.
+
+REGOLE IMPORTANTI:
+1. FORNITORE: scrivi SOLO il nome commerciale, senza forma giuridica. Esempi: "DAC" (non "DAC S.P.A."), "Gallo" (non "GALLO & C. sas"), "Essepi Ortofrutta" (non "ESSEPI ORTOFRUTTA S.A.S. DI STROPPIANA..."), "La Genovese" (non "La Genovese s.a.s di Alessandro Borea"), "Gel Quattro" (non "GEL QUATTRO s.r.l."), "MARR" (non "MARR S.p.A."), "Albagel" (non "Albagel s.r.l."), "Amadori" (non "Amadori - GESCO..."), "Casanova" (non "CASANOVA S.R.L."), "Maestripieri" (non "Maestripieri srl").
+
+2. NOME PRODOTTO: usa SEMPRE la descrizione testuale del prodotto (es. "Pasta Penne Rigate Barilla 5kg"). Se sulla bolla appare prima un CODICE NUMERICO e poi la descrizione, usa la DESCRIZIONE come "mat" e metti il codice nella "note". Se sulla bolla c'è SOLO il codice senza descrizione, scrivi il codice come "mat" e lascia "note" vuota.
+
+3. CATEGORIA: assegna una di queste: ${CATS.join(', ')}
+
+4. Formato JSON richiesto:
+{"num_documento":"","data":"YYYY-MM-DD","fornitore":"","righe":[{"mat":"nome prodotto","cat":"categoria","qty":0,"unit":"","price":0,"val":0,"note":"eventuale codice"}],"totale":0,"anomalie":[],"note_generali":""}`});
   try{
     const res=await fetch('https://hotel-derby-proxy.monicarssi65.workers.dev',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:4000,messages:[{role:'user',content:ca}]})});
     const data=await res.json();if(!res.ok||data.error)throw new Error(data.error?.message||'Errore API');
